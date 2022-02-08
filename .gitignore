@@ -1,0 +1,9 @@
+.stack-work/
+*~
+.vscode
+.hie/
+stan.html
+
+*.sublime-*
+*.zip
+*.exe
