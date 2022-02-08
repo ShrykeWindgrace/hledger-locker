@@ -1,0 +1,104 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.34.4.
+--
+-- see: https://github.com/sol/hpack
+
+name:           hledger-locker
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/hledger-locker#readme>
+homepage:       https://github.com/githubuser/hledger-locker#readme
+bug-reports:    https://github.com/githubuser/hledger-locker/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2022 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/hledger-locker
+
+library
+  exposed-modules:
+      FileWorks
+      Loggers
+      Machinery
+      ParserWorks
+      Types
+  other-modules:
+      Paths_hledger_locker
+  hs-source-dirs:
+      src
+  default-extensions:
+      DerivingStrategies
+      StrictData
+      FlexibleInstances
+  ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info
+  build-depends:
+      base >=4.7 && <5
+    , co-log-core
+    , colourista
+    , directory
+    , filepath
+    , hledger-lib
+    , megaparsec
+    , mtl
+    , selective
+    , text
+    , time
+    , transformers
+  default-language: Haskell2010
+
+executable hlocker
+  main-is: Main.hs
+  other-modules:
+      Paths_hledger_locker
+  hs-source-dirs:
+      app
+  default-extensions:
+      DerivingStrategies
+      StrictData
+      FlexibleInstances
+  ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , co-log-core
+    , colourista
+    , hledger-locker
+    , megaparsec
+    , mtl
+    , selective
+    , text
+    , time
+    , transformers
+  default-language: Haskell2010
+
+test-suite hledger-locker-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_hledger_locker
+  hs-source-dirs:
+      test
+  default-extensions:
+      DerivingStrategies
+      StrictData
+      FlexibleInstances
+  ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , co-log-core
+    , colourista
+    , hledger-locker
+    , megaparsec
+    , mtl
+    , selective
+    , text
+    , time
+    , transformers
+  default-language: Haskell2010
