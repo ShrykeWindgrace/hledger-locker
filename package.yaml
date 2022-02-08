@@ -42,6 +42,8 @@ default-extensions:
   - DerivingStrategies
   - StrictData
   - FlexibleInstances
+  - OverloadedStrings
+
 
 library:
   source-dirs: src
@@ -70,3 +72,8 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - hledger-locker
+    - hspec
+    - hspec-megaparsec
+    - hledger-lib
+    - time
+    - megaparsec

@@ -38,6 +38,7 @@ library
       DerivingStrategies
       StrictData
       FlexibleInstances
+      OverloadedStrings
   ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info
   build-depends:
       base >=4.7 && <5
@@ -64,6 +65,7 @@ executable hlocker
       DerivingStrategies
       StrictData
       FlexibleInstances
+      OverloadedStrings
   ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
@@ -89,12 +91,16 @@ test-suite hledger-locker-test
       DerivingStrategies
       StrictData
       FlexibleInstances
+      OverloadedStrings
   ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
     , co-log-core
     , colourista
+    , hledger-lib
     , hledger-locker
+    , hspec
+    , hspec-megaparsec
     , megaparsec
     , mtl
     , selective
