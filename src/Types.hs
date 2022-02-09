@@ -28,7 +28,7 @@ data Locker a = Locker {
     acc  :: HDT.AccountName
 } deriving stock (Show, Functor)
 
-instance Eq (Locker HDT.SmartDate) where -- Smart dates do not have a Show instance
+instance Eq (Locker HDT.SmartDate) where
     Locker v d a == Locker v2 d2 a2 =
         v == v2 && a == a2 && show d == show d2
 

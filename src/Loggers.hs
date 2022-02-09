@@ -30,21 +30,21 @@ data Loggers m = Loggers {
     err :: LogAction m M
 }
 
-type Loggable t m = (MonadTrans t, MonadReader (Loggers m) (t m), Monad m)
+type Loggable m = (MonadReader (Loggers m) m, Monad m)
 
-logDebug :: Loggable t m => Text -> t m ()
+logDebug :: Loggable m => Text -> m ()
 logDebug t = runLoggers (M Debug t)
-logInfo :: Loggable t m => Text -> t m ()
+logInfo :: Loggable m => Text -> m ()
 logInfo t = runLoggers (M Info t)
-logError :: Loggable t m => Text -> t m ()
+logError :: Loggable m => Text -> m ()
 logError t = runLoggers (M Error t)
-logNone :: Loggable t m => Text -> t m ()
+logNone :: Loggable m => Text -> m ()
 logNone t = runLoggers (M None t)
 
-runLoggers :: Loggable t m => M -> t m ()
+runLoggers :: Loggable m => M -> m ()
 runLoggers m@(M Error _) = do
     LogAction act <- asks err
-    lift $ act m
+    act m
 runLoggers m = do
     LogAction act <- asks out
-    lift $ act m
+    act m

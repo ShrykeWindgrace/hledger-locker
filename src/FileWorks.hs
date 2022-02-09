@@ -36,7 +36,7 @@ defaultJournalConfig = FileConf "LEDGER_FILE" ".hledger.journal" "journal"
 defaultLockerConfig :: Maybe FilePath -> FileConf LockerTag
 defaultLockerConfig = FileConf "HLEDGER_LOCKER_FILE" ".hledger.locker" "locker"
 
-selectFilePath :: (Loggable t m, MonadIO (t m), Selective (t m), MonadError Fails (t m)) => FileConf a -> t m FilePath
+selectFilePath :: (Loggable m, MonadIO m, Selective m, MonadError Fails m) => FileConf a -> m FilePath
 selectFilePath FileConf{..} = let explicit = liftIO $ maybe (pure $ failLEV FileNotProvided) valFP providedFP in do
     viaEnv_ <- liftIO $ lookupEnv envVar
     let viaEnvFP = case viaEnv_ of
@@ -52,8 +52,8 @@ selectFilePath FileConf{..} = let explicit = liftIO $ maybe (pure $ failLEV File
 valFP :: FilePath -> IO (Either (NonEmpty IOFail ) FilePath)
 valFP fp = doesFileExist fp <&> bool (failLEV $ FileNotFound fp) (Right fp)
 
-makeJournalPath ::(Loggable t m, MonadIO (t m), Selective (t m), MonadError Fails (t m)) => Maybe FilePath -> t m FilePath
+makeJournalPath :: (Loggable m, MonadIO m, Selective m, MonadError Fails m) => Maybe FilePath -> m FilePath
 makeJournalPath = selectFilePath . defaultJournalConfig
 
-makeLockerPath ::(Loggable t m, MonadIO (t m), Selective (t m), MonadError Fails (t m)) => Maybe FilePath -> t m FilePath
+makeLockerPath :: (Loggable m, MonadIO m, Selective m, MonadError Fails m) => Maybe FilePath -> m FilePath
 makeLockerPath = selectFilePath . defaultLockerConfig

@@ -27,7 +27,7 @@ cliOptionsParser = CliOptions <$>
     optional (strOption (long "locker-file" <> help "path to LOCKER_FILE" <> metavar "LOCKER_FILE")) <*>
     switch (long "debug" <> hidden)
 
-newtype App a = App {app :: ReaderT (Loggers (ExceptT Fails IO)) (ExceptT Fails IO) a} 
+newtype App a = App {app :: ReaderT (Loggers (ExceptT Fails IO)) (ExceptT Fails IO) a}
     deriving newtype (Functor, Applicative, Monad, MonadError Fails, MonadReader (Loggers (ExceptT Fails IO)), MonadIO)
 
 runApp :: App () -> Loggers IO -> IO ()

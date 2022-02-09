@@ -45,7 +45,7 @@ recoverJournal fp =
     liftIO (Text.readFile fp) >>= parseAndFinaliseJournal journalp definputopts fp
 
 
-runner :: (Loggable t m, MonadError Fails (t m), MonadIO (t m)) => Locker Day -> FilePath -> (t m) ExitCode
+runner :: (Loggable m, MonadError Fails m, MonadIO m) => Locker Day -> FilePath -> m ExitCode
 runner l fp = do
     jrc <- liftIO $ runExceptT $ recoverJournal fp
     case jrc of
