@@ -14,16 +14,16 @@ import Control.Selective (Selective)
 import Data.Foldable
 import ParserWorks
 import Assertions
-import Loggers
 import Colog.Core (hoistLogAction, liftLogIO, LogAction (unLogAction))
 import qualified Data.Text as Text
 import System.Exit (exitWith, ExitCode (ExitFailure))
+import Revision
 
 main :: IO ()
 main = do
     CliOptions {..} <- execParser cliOptions
     if showVersion then
-        putStrLn "version - todo"
+        putStrLn gitVersion
     else do
         runApp (makeLoggers verbose) $ global pathToJournal pathToLocker
 

@@ -46,6 +46,7 @@ library:
     - hledger-lib
     - directory
     - filepath
+    - gitrev
 executables:
   hlocker:
     main:                Main.hs

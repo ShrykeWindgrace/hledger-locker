@@ -60,6 +60,3 @@ Artefacts in releases will be available soon-ish.
 - better test coverage
 - CI/CD
 
-### Cosmetics
-
- - Proper version string
