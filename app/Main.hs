@@ -17,6 +17,7 @@ import Assertions
 import Loggers
 import Colog.Core (hoistLogAction, liftLogIO, LogAction (unLogAction))
 import qualified Data.Text as Text
+import System.Exit (exitWith, ExitCode (ExitFailure))
 
 main :: IO ()
 main = do
@@ -71,11 +72,11 @@ global mjp mlp = do
     j <- recoverJournal jp
     case runAssertions j ls of
         [] -> logDebug "Ok"
-        z -> traverse_ logFailedAssertion z
+        z -> traverse_ logFailedAssertion z >> liftIO (exitWith (ExitFailure 4))
     `catchError` handler
 
 handler :: Fails -> App ()
 -- data Fails = Fs String (NonEmpty IOFail) | JParsing String | LParsing String
-handler (LParsing e) = logError "Locker parsing failed:" >> logNone (Text.pack e)
-handler (JParsing e) = logError "Journal parsing failed:" >> logNone (Text.pack e)
-handler (Fs tag iofs) = logError "IO error:" >> logNone (Text.pack $ prettyIOFail tag iofs)
+handler (LParsing e) = logError "Locker parsing failed:" >> logNone (Text.pack e) >> liftIO (exitWith (ExitFailure 3))
+handler (JParsing e) = logError "Journal parsing failed:" >> logNone (Text.pack e) >> liftIO (exitWith (ExitFailure 2))
+handler (Fs tag iofs) = logError "IO error:" >> logNone (Text.pack $ prettyIOFail tag iofs) >> liftIO (exitWith (ExitFailure 1))

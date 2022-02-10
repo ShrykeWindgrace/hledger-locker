@@ -52,7 +52,6 @@ Artefacts in releases will be available soon-ish.
 
 - Read journal entries from `stdin`
 - Specify `locker` via CLI options
-- proper exit codes
 
 ### Code and documentation
 
