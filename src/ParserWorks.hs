@@ -61,7 +61,7 @@ lockerToday l = (\d -> HDD.fixSmartDate d <$> l) <$> HDD.getCurrentDay
 parseLockers :: MonadIO m => FilePath -> m ([LockerError], [Locker HDT.SmartDate])
 parseLockers fp = do
     ls <- Prelude.filter (not . Text.null) . Text.lines <$> liftIO (TIO.readFile fp)
-    pure $ if null ls then ([EmptyFile], []) else catMaybes <$> partitionEithers (single <$> ls)
+    pure $ if null ls then ([EmptyFile fp], []) else catMaybes <$> partitionEithers (single <$> ls)
     where
         single :: Text -> Either LockerError (Maybe (Locker HDT.SmartDate))
         single t
@@ -69,3 +69,7 @@ parseLockers fp = do
             | otherwise = bimap (LockerError t . errorBundlePretty) Just $ runParser parseLocker fp t
 
 
+parseLockersToday :: MonadIO m => FilePath -> m ([LockerError], [Locker Day])
+parseLockersToday fp = do
+    g <- parseLockers fp
+    traverse (traverse (liftIO . lockerToday)) g

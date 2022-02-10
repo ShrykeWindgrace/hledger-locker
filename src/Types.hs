@@ -1,7 +1,9 @@
 {-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE RecordWildCards #-}
 module Types where
 import Data.List.NonEmpty (toList, NonEmpty)
 import Data.Text (Text)
+import qualified Data.Text as Text
 import qualified Hledger.Data.Types as HDT
 import Data.Time.Calendar (Day)
 
@@ -13,9 +15,14 @@ prettyIOFail prefix fs = let indent = replicate (length prefix) ' ' in
     unlines $ prefix : toList ((indent <>) . show <$> fs)
 
 
-data LockerError = LockerError {source :: Text, message :: String} | EmptyFile deriving stock (Eq, Show)
+data LockerError = LockerError {source :: Text, message :: String} | EmptyFile FilePath deriving stock (Eq, Show)
 
-data Fails = Fs String (NonEmpty IOFail) | JParsing String | LParsing String | Asserts (NonEmpty (Locker Day, NonEmpty HDT.Transaction))
+showLockerError :: LockerError -> Text
+showLockerError (EmptyFile fp) = Text.pack $ "File is empty: " <> fp
+showLockerError (LockerError s m) = "Parsing error at \"" <> s <> "\" with message " <> Text.pack m
+
+
+data Fails = Fs String (NonEmpty IOFail) | JParsing String | LParsing String
 
 
 
@@ -37,3 +44,6 @@ instance Eq (Locker Day) where
         v == v2 && a == a2 && d == d2
 
 type LockerAbs = Locker Day
+
+showLocker :: Locker Day -> Text
+showLocker Locker {..} = Text.unwords [Text.pack $ show verb, Text.pack $ show date, acc]

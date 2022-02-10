@@ -3,20 +3,20 @@
 {-# LANGUAGE ConstraintKinds #-}
 module Loggers where
 import Data.Text (Text)
-import Colourista
+import Colourista ( blue, green, red, reset )
 import Colog.Core (LogAction (LogAction))
-import Control.Monad.Reader.Class
-import Control.Monad.Trans.Class
+import Control.Monad.Reader.Class ( MonadReader, asks )
+import qualified Data.Text.IO as TIO
+import System.IO ( stderr )
+import Data.Functor.Contravariant
+import Control.Monad.IO.Class
 
 data Sev = None | Debug | Info | Error deriving stock (Eq, Ord)
 
-data M = M Sev Text
+data Msg = Msg Sev Text
 
-fmt :: Maybe Sev -> Text -> Text
-fmt ms t = foldMap showSeverity ms <> t
-
-showMsg :: M -> Text
-showMsg (M s t) = fmt (Just s) t
+fmt :: Msg -> Text
+fmt (Msg s t) =  showSeverity s <> t
 
 showSeverity :: Sev -> Text
 showSeverity = \case
@@ -26,25 +26,37 @@ showSeverity = \case
     Error   -> red  <>  "[Error] " <> reset
 
 data Loggers m = Loggers {
-    out :: LogAction m M,
-    err :: LogAction m M
+    out :: LogAction m Msg,
+    err :: LogAction m Msg
 }
 
 type Loggable m = (MonadReader (Loggers m) m, Monad m)
 
 logDebug :: Loggable m => Text -> m ()
-logDebug t = runLoggers (M Debug t)
+logDebug = runLoggers . Msg Debug
 logInfo :: Loggable m => Text -> m ()
-logInfo t = runLoggers (M Info t)
+logInfo = runLoggers . Msg Info
 logError :: Loggable m => Text -> m ()
-logError t = runLoggers (M Error t)
+logError = runLoggers . Msg Error
 logNone :: Loggable m => Text -> m ()
-logNone t = runLoggers (M None t)
+logNone = runLoggers . Msg None
 
-runLoggers :: Loggable m => M -> m ()
-runLoggers m@(M Error _) = do
+runLoggers :: Loggable m => Msg -> m ()
+runLoggers m@(Msg Error _) = do
     LogAction act <- asks err
     act m
-runLoggers m = do
-    LogAction act <- asks out
+runLoggers m@(Msg None _) = do
+    LogAction act <- asks err
     act m
+runLoggers msg = do
+    LogAction act <- asks out
+    act msg
+
+dropDebug :: Applicative m => LogAction m Msg -> LogAction m Msg
+dropDebug (LogAction act) = LogAction $ \case
+    Msg Debug _ -> pure ()
+    msg -> act msg
+
+makeLoggers :: MonadIO m => Bool -> Loggers m
+makeLoggers useDebug = Loggers {out = filt useDebug $ fmt >$< LogAction (liftIO . TIO.putStrLn), err = filt useDebug $ fmt >$<  LogAction (liftIO . TIO.hPutStrLn stderr)} where
+    filt b = if b then id else dropDebug

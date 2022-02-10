@@ -2,30 +2,32 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 module Assertions where
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Hledger.Data.Types as HDT
-import Types (Locker (Locker, verb, date, acc), Verb (Close, Open), Fails (JParsing), Fails(Asserts))
+import Types (Locker (Locker, verb, date, acc), Verb (Close, Open), Fails (JParsing),  showLocker)
 import Data.Time.Calendar (Day)
 import Control.Monad.Except (ExceptT, runExceptT)
 import qualified Data.Text.IO as Text
-import Loggers (Loggable, logDebug)
+import Loggers (Loggable, logDebug, logError, logNone)
 import Control.Monad.Error.Class ( MonadError(throwError) )
 import Control.Monad.IO.Class ( MonadIO(..) )
 import System.Exit (ExitCode (ExitSuccess))
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, catMaybes)
 import Hledger.Read.JournalReader (parseAndFinaliseJournal, journalp)
 import Hledger.Read.Common (definputopts)
+import Data.Function ( (&) )
+import Data.Foldable (Foldable(fold), traverse_)
+import qualified Hledger.Data.Transaction as HDT
 
-data Result = Ok | NotOk (NonEmpty HDT.Transaction)
+type Result = (Locker Day, HDT.Transaction)
 
-runAssertion :: HDT.Journal -> Locker Day -> Result
-runAssertion (HDT.jtxns -> txns) l = let
-    errings = Prelude.filter (compTxn l) txns
-    in
-        case errings of
-            [] -> Ok
-            (h:t) -> NotOk $ h :| t
+runAssertion :: HDT.Journal -> Locker Day -> [Result]
+runAssertion (HDT.jtxns -> txns) l = (l,) <$> Prelude.filter (compTxn l) txns
+
+runAssertions :: HDT.Journal -> [Locker Day] -> [Result]
+runAssertions j ls = runAssertion j =<< ls
 
 -- | True if candidate violates verb condition
 comparator :: Verb -> Day -> Day -> Bool
@@ -40,22 +42,16 @@ compPosting :: Locker Day -> (Day, HDT.Posting) -> Bool
 compPosting Locker{..} (d, p) = let day = fromMaybe d (HDT.pdate p) in
     HDT.paccount p == acc && comparator verb date day
 
-recoverJournal :: FilePath -> ExceptT String IO HDT.Journal
-recoverJournal fp =
-    liftIO (Text.readFile fp) >>= parseAndFinaliseJournal journalp definputopts fp
+recoverJournal :: (Loggable m, MonadError Fails m, MonadIO m) => FilePath -> m HDT.Journal
+recoverJournal fp = do
+    c <- liftIO $ Text.readFile fp
+    j <-  liftIO $ runExceptT $ parseAndFinaliseJournal journalp definputopts fp c
+    case j of
+      Left err -> throwError (JParsing err)
+      Right journal -> pure journal
 
 
-runner :: (Loggable m, MonadError Fails m, MonadIO m) => Locker Day -> FilePath -> m ExitCode
-runner l fp = do
-    jrc <- liftIO $ runExceptT $ recoverJournal fp
-    case jrc of
-      Left err -> do
-          throwError (JParsing err)
-      Right journal -> do
-          let ra = runAssertion journal l
-          case ra of
-              Ok -> 
-                  ExitSuccess <$ logDebug "Ok"
-              NotOk ne -> throwError $ Asserts $ pure (l, ne)
-                  
-                  
+logFailedAssertion :: Loggable m => Result -> m ()
+logFailedAssertion (l, txn) = do
+    logError $ showLocker l
+    logNone $ HDT.showTransaction txn
