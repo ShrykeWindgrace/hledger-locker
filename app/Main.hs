@@ -2,22 +2,22 @@
 {-# LANGUAGE RecordWildCards #-}
 module Main where
 import           Options.Applicative
-import Control.Monad.IO.Class
-import Loggers
-import Control.Monad.Reader.Class
-import Control.Monad.Error.Class
+import Control.Monad.IO.Class ( MonadIO(..) )
+import Loggers ( logNone, logError, logDebug, makeLoggers, Logger )
+import Control.Monad.Reader.Class ( MonadReader )
+import Control.Monad.Error.Class ( MonadError(catchError) )
 import Control.Monad.Reader (ReaderT (runReaderT))
 import Control.Monad.Except (ExceptT, runExceptT)
-import Types
+import Types ( prettyIOFail, showLockerError, Fails(..) )
 import FileWorks (makeJournalPath, makeLockerPath)
 import Control.Selective (Selective)
-import Data.Foldable
-import ParserWorks
+import Data.Foldable ( traverse_ )
+import ParserWorks ( parseLockersToday )
 import Assertions
-import Colog.Core (hoistLogAction, liftLogIO, LogAction (unLogAction))
+    ( logFailedAssertion, runAssertions, recoverJournal )
 import qualified Data.Text as Text
 import System.Exit (exitWith, ExitCode (ExitFailure))
-import Revision
+import Revision ( gitVersion )
 
 main :: IO ()
 main = do
@@ -45,23 +45,18 @@ cliOptionsParser = CliOptions <$>
 cliOptions :: ParserInfo CliOptions
 cliOptions = info (helper <*> cliOptionsParser) (fullDesc <> progDesc "Close/Open account assertions for hledger journal files" <> header "hledger-locker")
 
--- newtype App a = App {app :: ExceptT Fails (ReaderT (Loggers App) IO) a}
-    -- deriving newtype (Functor, Applicative, Monad, MonadError Fails, MonadReader (Loggers App), MonadIO, Selective)
-
-newtype App a = App {app :: ReaderT (Loggers App) (ExceptT Fails IO) a}
-    deriving newtype (Functor, Applicative, Monad, MonadError Fails, MonadReader (Loggers App), MonadIO, Selective)
+newtype App a = App {app :: ReaderT (Logger App) (ExceptT Fails IO) a}
+    deriving newtype (Functor, Applicative, Monad, MonadError Fails, MonadReader (Logger App), MonadIO, Selective)
 
 
 
-runApp :: Loggers App -> App ()  -> IO ()
-runApp logs@Loggers{..} (App app) = do
+runApp :: Logger App -> App ()  -> IO ()
+runApp logs (App app) = do
     z <- runExceptT $ runReaderT app logs
     case z of
         Right () -> pure ()
         Left _ -> putStrLn "Impossible happened: all fails should have been logged by now"
 
-liftToApp :: Loggers IO -> Loggers App
-liftToApp (Loggers x y) = Loggers (liftLogIO x) (liftLogIO y)
 
 global :: Maybe FilePath -> Maybe FilePath -> App ()
 global mjp mlp = do
@@ -76,7 +71,6 @@ global mjp mlp = do
     `catchError` handler
 
 handler :: Fails -> App ()
--- data Fails = Fs String (NonEmpty IOFail) | JParsing String | LParsing String
 handler (LParsing e) = logError "Locker parsing failed:" >> logNone (Text.pack e) >> liftIO (exitWith (ExitFailure 3))
 handler (JParsing e) = logError "Journal parsing failed:" >> logNone (Text.pack e) >> liftIO (exitWith (ExitFailure 2))
 handler (Fs tag iofs) = logError "IO error:" >> logNone (Text.pack $ prettyIOFail tag iofs) >> liftIO (exitWith (ExitFailure 1))
