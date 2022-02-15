@@ -29,7 +29,7 @@ jobs:
           stack-setup-ghc: true
       
       - name: stack version and other debug stuff
-        run:
+        run: |
           stack --version
           ls
           cat stack.yaml
