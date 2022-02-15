@@ -42,7 +42,7 @@ library
       StrictData
       FlexibleInstances
       OverloadedStrings
-  ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info
+  ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info -hiedir=.hie -Wall
   build-depends:
       base >=4.7 && <5
     , co-log-core
@@ -70,7 +70,7 @@ executable hlocker
       StrictData
       FlexibleInstances
       OverloadedStrings
-  ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info -hiedir=.hie -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
     , co-log-core
@@ -97,7 +97,7 @@ test-suite hledger-locker-test
       StrictData
       FlexibleInstances
       OverloadedStrings
-  ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info -hiedir=.hie -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
     , co-log-core

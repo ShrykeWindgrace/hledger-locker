@@ -7,7 +7,6 @@ import Colourista ( blue, green, red, reset )
 import Colog.Core (LogAction (LogAction))
 import Control.Monad.Reader.Class ( MonadReader (ask) )
 import qualified Data.Text.IO as TIO
-import System.IO ( stderr )
 import Data.Functor.Contravariant ( (>$<) )
 import Control.Monad.IO.Class ( MonadIO(..) )
 

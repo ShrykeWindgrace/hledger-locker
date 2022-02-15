@@ -32,6 +32,8 @@ ghc-options:
     - -Wmissing-fields
     - -Wmissing-deriving-strategies
     - -fwrite-ide-info
+    - -hiedir=.hie
+    - -Wall
       
 default-extensions:
   - DerivingStrategies

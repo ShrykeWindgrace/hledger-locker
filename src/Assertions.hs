@@ -2,23 +2,18 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE LambdaCase #-}
 module Assertions where
-import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Hledger.Data.Types as HDT
 import Types (Locker (Locker, verb, date, acc), Verb (Close, Open), Fails (JParsing),  showLocker)
 import Data.Time.Calendar (Day)
-import Control.Monad.Except (ExceptT, runExceptT)
+import Control.Monad.Except (runExceptT)
 import qualified Data.Text.IO as Text
-import Loggers (Loggable, logDebug, logError, logNone)
+import Loggers (Loggable, logError, logNone)
 import Control.Monad.Error.Class ( MonadError(throwError) )
 import Control.Monad.IO.Class ( MonadIO(..) )
-import System.Exit (ExitCode (ExitSuccess))
-import Data.Maybe (fromMaybe, catMaybes)
+import Data.Maybe (fromMaybe)
 import Hledger.Read.JournalReader (parseAndFinaliseJournal, journalp)
 import Hledger.Read.Common (definputopts)
-import Data.Function ( (&) )
-import Data.Foldable (Foldable(fold), traverse_)
 import qualified Hledger.Data.Transaction as HDT
 
 type Result = (Locker Day, HDT.Transaction)
