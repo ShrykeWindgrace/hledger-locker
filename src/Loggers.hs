@@ -1,14 +1,14 @@
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE ConstraintKinds  #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE LambdaCase       #-}
 module Loggers where
-import Data.Text (Text)
-import Colourista ( blue, green, red, reset )
-import Colog.Core (LogAction (LogAction))
-import Control.Monad.Reader.Class ( MonadReader (ask) )
-import qualified Data.Text.IO as TIO
-import Data.Functor.Contravariant ( (>$<) )
-import Control.Monad.IO.Class ( MonadIO(..) )
+import           Colog.Core                 (LogAction (LogAction))
+import           Colourista                 (blue, green, red, reset)
+import           Control.Monad.IO.Class     (MonadIO (..))
+import           Control.Monad.Reader.Class (MonadReader (ask))
+import           Data.Functor.Contravariant ((>$<))
+import           Data.Text                  (Text)
+import qualified Data.Text.IO               as TIO
 
 data Sev = None | Debug | Info | Error deriving stock (Eq, Ord)
 
@@ -19,10 +19,10 @@ fmt (Msg s t) =  showSeverity s <> t
 
 showSeverity :: Sev -> Text
 showSeverity = \case
-    None    -> mempty
-    Debug   -> green  <> "[Debug] " <> reset
-    Info    -> blue <>  "[Info ] " <> reset
-    Error   -> red  <>  "[Error] " <> reset
+    None  -> mempty
+    Debug -> green  <> "[Debug] " <> reset
+    Info  -> blue <>  "[Info ] " <> reset
+    Error -> red  <>  "[Error] " <> reset
 
 type Logger m = LogAction m Msg
 
@@ -45,7 +45,7 @@ runLoggers m = do
 dropDebug :: Applicative m => Logger m -> Logger m
 dropDebug (LogAction act) = LogAction $ \case
     Msg Debug _ -> pure ()
-    msg -> act msg
+    msg         -> act msg
 
 makeLoggers :: MonadIO m => Bool -> Logger m
 makeLoggers useDebug = filt useDebug $ fmt >$< LogAction (liftIO . TIO.putStrLn) where

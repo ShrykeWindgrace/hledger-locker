@@ -1,21 +1,21 @@
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RecordWildCards  #-}
 
 module FileWorks where
-import Loggers ( logDebug, Loggable )
-import Control.Monad.Reader.Class ()
-import Control.Selective (Selective)
-import Control.Monad.IO.Class ( MonadIO(..) )
-import Control.Monad.Trans.Class ()
-import Control.Monad.Error.Class ( MonadError(throwError) )
-import Types ( Fails(Fs), IOFail(..) )
-import System.Environment (lookupEnv)
-import System.Directory (getHomeDirectory, doesFileExist)
-import Machinery (selectFirst, failLEV)
-import Data.Bool (bool)
-import Data.Functor ((<&>))
-import Data.List.NonEmpty (NonEmpty ((:|)))
-import System.FilePath ((</>))
+import           Control.Monad.Error.Class  (MonadError (throwError))
+import           Control.Monad.IO.Class     (MonadIO (..))
+import           Control.Monad.Reader.Class ()
+import           Control.Monad.Trans.Class  ()
+import           Control.Selective          (Selective)
+import           Data.Bool                  (bool)
+import           Data.Functor               ((<&>))
+import           Data.List.NonEmpty         (NonEmpty ((:|)))
+import           Loggers                    (Loggable, logDebug)
+import           Machinery                  (failLEV, selectFirst)
+import           System.Directory           (doesFileExist, getHomeDirectory)
+import           System.Environment         (lookupEnv)
+import           System.FilePath            ((</>))
+import           Types                      (Fails (Fs), IOFail (..))
 
 
 data FileConf a = FileConf {

@@ -2,25 +2,23 @@
 {-# LANGUAGE RecordWildCards   #-}
 module ParserWorks where
 
-import Control.Monad.IO.Class ( MonadIO(..) )
-import Data.Bifunctor ( Bifunctor(bimap) )
-import Data.Either ( partitionEithers )
+import           Control.Monad.IO.Class (MonadIO (..))
+import           Data.Bifunctor         (Bifunctor (bimap))
+import           Data.Either            (partitionEithers)
 import           Data.Maybe             (catMaybes)
 import           Data.Text              (Text)
 import qualified Data.Text              as Text
 import qualified Data.Text.IO           as TIO
-import Data.Time.Calendar ( Day )
+import           Data.Time.Calendar     (Day)
 import qualified Hledger.Data.Dates     as HDD
 import qualified Hledger.Data.Types     as HDT
-import qualified Hledger.Utils.Parse    as HUP
 import qualified Hledger.Read.Common    as HRC
-import Text.Megaparsec (      Stream(Token),
-      runParser,
-      errorBundlePretty,
-      choice)
-    
-import Text.Megaparsec.Char ( hspace1, string' )
-import Types
+import qualified Hledger.Utils.Parse    as HUP
+import           Text.Megaparsec        (Stream (Token), choice,
+                                         errorBundlePretty, runParser)
+
+import           Text.Megaparsec.Char   (hspace1, string')
+import           Types
 
 
 

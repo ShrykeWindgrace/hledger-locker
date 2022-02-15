@@ -1,20 +1,22 @@
-{-# LANGUAGE ViewPatterns #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RecordWildCards  #-}
+{-# LANGUAGE TupleSections    #-}
+{-# LANGUAGE ViewPatterns     #-}
 module Assertions where
-import qualified Hledger.Data.Types as HDT
-import Types (Locker (Locker, verb, date, acc), Verb (Close, Open), Fails (JParsing),  showLocker)
-import Data.Time.Calendar (Day)
-import Control.Monad.Except (runExceptT)
-import qualified Data.Text.IO as Text
-import Loggers (Loggable, logError, logNone)
-import Control.Monad.Error.Class ( MonadError(throwError) )
-import Control.Monad.IO.Class ( MonadIO(..) )
-import Data.Maybe (fromMaybe)
-import Hledger.Read.JournalReader (parseAndFinaliseJournal, journalp)
-import Hledger.Read.Common (definputopts)
-import qualified Hledger.Data.Transaction as HDT
+import           Control.Monad.Error.Class  (MonadError (throwError))
+import           Control.Monad.Except       (runExceptT)
+import           Control.Monad.IO.Class     (MonadIO (..))
+import           Data.Maybe                 (fromMaybe)
+import qualified Data.Text.IO               as Text
+import           Data.Time.Calendar         (Day)
+import qualified Hledger.Data.Transaction   as HDT
+import qualified Hledger.Data.Types         as HDT
+import           Hledger.Read.Common        (definputopts)
+import           Hledger.Read.JournalReader (journalp, parseAndFinaliseJournal)
+import           Loggers                    (Loggable, logError, logNone)
+import           Types                      (Fails (JParsing),
+                                             Locker (Locker, acc, date, verb),
+                                             Verb (Close, Open), showLocker)
 
 type Result = (Locker Day, HDT.Transaction)
 
@@ -27,7 +29,7 @@ runAssertions j ls = runAssertion j =<< ls
 -- | True if candidate violates verb condition
 comparator :: Verb -> Day -> Day -> Bool
 comparator Close mark candidate = candidate > mark
-comparator Open mark candidate = candidate < mark
+comparator Open mark candidate  = candidate < mark
 
 -- | True if this txn deals with account name and violates the verb
 compTxn :: Locker Day -> HDT.Transaction -> Bool
@@ -42,7 +44,7 @@ recoverJournal fp = do
     c <- liftIO $ Text.readFile fp
     j <-  liftIO $ runExceptT $ parseAndFinaliseJournal journalp definputopts fp c
     case j of
-      Left err -> throwError (JParsing err)
+      Left err      -> throwError (JParsing err)
       Right journal -> pure journal
 
 

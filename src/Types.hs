@@ -1,11 +1,11 @@
-{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveFunctor   #-}
 {-# LANGUAGE RecordWildCards #-}
 module Types where
-import Data.List.NonEmpty (toList, NonEmpty)
-import Data.Text (Text)
-import qualified Data.Text as Text
+import           Data.List.NonEmpty (NonEmpty, toList)
+import           Data.Text          (Text)
+import qualified Data.Text          as Text
+import           Data.Time.Calendar (Day)
 import qualified Hledger.Data.Types as HDT
-import Data.Time.Calendar (Day)
 
 data IOFail = EnvVarNotSet String | FileNotFound FilePath | FileNotProvided deriving stock Show
 

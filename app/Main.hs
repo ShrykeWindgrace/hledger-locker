@@ -1,23 +1,25 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RecordWildCards            #-}
 module Main where
+import           Assertions                 (logFailedAssertion, recoverJournal,
+                                             runAssertions)
+import           Control.Monad.Error.Class  (MonadError (catchError))
+import           Control.Monad.Except       (ExceptT, runExceptT)
+import           Control.Monad.IO.Class     (MonadIO (..))
+import           Control.Monad.Reader       (ReaderT (runReaderT))
+import           Control.Monad.Reader.Class (MonadReader)
+import           Control.Selective          (Selective)
+import           Data.Foldable              (traverse_)
+import qualified Data.Text                  as Text
+import           FileWorks                  (makeJournalPath, makeLockerPath)
+import           Loggers                    (Logger, logDebug, logError,
+                                             logNone, makeLoggers)
 import           Options.Applicative
-import Control.Monad.IO.Class ( MonadIO(..) )
-import Loggers ( logNone, logError, logDebug, makeLoggers, Logger )
-import Control.Monad.Reader.Class ( MonadReader )
-import Control.Monad.Error.Class ( MonadError(catchError) )
-import Control.Monad.Reader (ReaderT (runReaderT))
-import Control.Monad.Except (ExceptT, runExceptT)
-import Types ( prettyIOFail, showLockerError, Fails(..) )
-import FileWorks (makeJournalPath, makeLockerPath)
-import Control.Selective (Selective)
-import Data.Foldable ( traverse_ )
-import ParserWorks ( parseLockersToday )
-import Assertions
-    ( logFailedAssertion, runAssertions, recoverJournal )
-import qualified Data.Text as Text
-import System.Exit (exitWith, ExitCode (ExitFailure))
-import Revision ( gitVersion )
+import           ParserWorks                (parseLockersToday)
+import           Revision                   (gitVersion)
+import           System.Exit                (ExitCode (ExitFailure), exitWith)
+import           Types                      (Fails (..), prettyIOFail,
+                                             showLockerError)
 
 main :: IO ()
 main = do
@@ -29,10 +31,10 @@ main = do
 
 
 data CliOptions = CliOptions {
-        showVersion :: Bool,
+        showVersion   :: Bool,
         pathToJournal :: Maybe FilePath,
-        pathToLocker :: Maybe FilePath,
-        verbose :: Bool
+        pathToLocker  :: Maybe FilePath,
+        verbose       :: Bool
     }
 
 cliOptionsParser :: Parser CliOptions
