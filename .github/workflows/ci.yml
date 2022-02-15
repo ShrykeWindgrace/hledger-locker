@@ -1,0 +1,32 @@
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main, ci ]
+  pull_request:
+    branches: [ main, ci ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  stack:
+    name: stack / ghc-musl
+    runs-on: utdemir/ghc-musl:v22-ghc8107
+    steps:
+      - uses: actions/checkout@v2
+        if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/main'
+
+      - name: Install dependencies
+        run: |
+          stack build --test --no-run-tests --only-dependencies --no-nix --system-ghc
+
+      - name: Build
+        run: |
+          stack build --test --no-run-tests --no-nix --system-ghc
+
+      - name: Test
+        run: |
+          stack test --no-nix --system-ghc
