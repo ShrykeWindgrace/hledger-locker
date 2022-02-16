@@ -27,5 +27,7 @@ main = hspec $ do
             parser `shouldFailOn` "close 02 account"
         it "do not accept smart dates" $
             parser `shouldFailOn` "close yesterday account"
+        it "do not accept partial years" $
+            parser `shouldFailOn` "close 22-01-02 account"
 
 
