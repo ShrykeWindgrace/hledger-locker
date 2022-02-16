@@ -15,7 +15,7 @@ prettyIOFail prefix fs = let indent = replicate (length prefix) ' ' in
     unlines $ prefix : toList ((indent <>) . show <$> fs)
 
 
-data LockerError = LockerError {source :: Text, message :: String} | EmptyFile FilePath deriving stock (Eq, Show)
+data LockerError = LockerError {source :: Text, message :: String} | EmptyFile FilePath
 
 showLockerError :: LockerError -> Text
 showLockerError (EmptyFile fp) = Text.pack $ "File is empty: " <> fp
@@ -29,21 +29,12 @@ data Fails = Fs String (NonEmpty IOFail) | JParsing String | LParsing String
 data Verb = Close | Open deriving stock (Eq, Show)
 
 
-data Locker a = Locker {
+data Locker = Locker {
     verb :: Verb,
-    date :: a,
+    date :: Day,
     acc  :: HDT.AccountName
-} deriving stock (Show, Functor)
+} deriving stock (Eq, Show)
 
-instance Eq (Locker HDT.SmartDate) where
-    Locker v d a == Locker v2 d2 a2 =
-        v == v2 && a == a2 && show d == show d2
 
-instance Eq (Locker Day) where
-    Locker v d a == Locker v2 d2 a2 =
-        v == v2 && a == a2 && d == d2
-
-type LockerAbs = Locker Day
-
-showLocker :: Locker Day -> Text
+showLocker :: Locker -> Text
 showLocker Locker {..} = Text.unwords [Text.pack $ show verb, Text.pack $ show date, acc]

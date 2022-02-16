@@ -15,7 +15,7 @@ import           FileWorks                  (makeJournalPath, makeLockerPath)
 import           Loggers                    (Logger, logDebug, logError,
                                              logNone, makeLoggers)
 import           Options.Applicative
-import           ParserWorks                (parseLockersToday)
+import           ParserWorks                (getLockers)
 import           Revision                   (gitVersion)
 import           System.Exit                (ExitCode (ExitFailure), exitWith)
 import           Types                      (Fails (..), prettyIOFail,
@@ -64,7 +64,7 @@ global :: Maybe FilePath -> Maybe FilePath -> App ()
 global mjp mlp = do
     jp <- makeJournalPath mjp
     lp <- makeLockerPath mlp
-    (errs, ls) <- parseLockersToday lp
+    (errs, ls) <- getLockers lp
     traverse_ logDebug $ fmap showLockerError errs
     j <- recoverJournal jp
     case runAssertions j ls of

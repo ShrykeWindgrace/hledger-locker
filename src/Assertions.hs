@@ -18,12 +18,12 @@ import           Types                      (Fails (JParsing),
                                              Locker (Locker, acc, date, verb),
                                              Verb (Close, Open), showLocker)
 
-type Result = (Locker Day, HDT.Transaction)
+type Result = (Locker, HDT.Transaction)
 
-runAssertion :: HDT.Journal -> Locker Day -> [Result]
+runAssertion :: HDT.Journal -> Locker -> [Result]
 runAssertion (HDT.jtxns -> txns) l = (l,) <$> Prelude.filter (compTxn l) txns
 
-runAssertions :: HDT.Journal -> [Locker Day] -> [Result]
+runAssertions :: HDT.Journal -> [Locker] -> [Result]
 runAssertions j ls = runAssertion j =<< ls
 
 -- | True if candidate violates verb condition
@@ -32,10 +32,10 @@ comparator Close mark candidate = candidate > mark
 comparator Open mark candidate  = candidate < mark
 
 -- | True if this txn deals with account name and violates the verb
-compTxn :: Locker Day -> HDT.Transaction -> Bool
+compTxn :: Locker -> HDT.Transaction -> Bool
 compTxn l t = any (compPosting l) $ fmap (HDT.tdate t,) (HDT.tpostings t)
 
-compPosting :: Locker Day -> (Day, HDT.Posting) -> Bool
+compPosting :: Locker -> (Day, HDT.Posting) -> Bool
 compPosting Locker{..} (d, p) = let day = fromMaybe d (HDT.pdate p) in
     HDT.paccount p == acc && comparator verb date day
 
