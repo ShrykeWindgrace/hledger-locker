@@ -6,23 +6,23 @@ We use a so-called `locker` file that contains directives of the form
 # this is a comment
 ; this is also a comment
 ; there are no inline comments
-; grammar is [close|open] SmartDate AccountName, e.g.
+; grammar is [close|open] Date AccountName, e.g.
 close 2022-01-01 assets:cash
-open today equity
+open 2022/01/02 equity
 ; empty lines are ignored
 ```
 
 The tool would check the presence of postings to the specified accounts and report errors if
 - there are postings on dates strictly after the `close` date
-- there are postings on date strictly before the `open` date
+- there are postings on dates strictly before the `open` date
 
-### Note on dates
-We accept all dates that `hledger add` would accept, including dates like `yesterday`.
-They are then evaluated with respect to current local date, so the assertion outcome can change from run to run.
+### Note on date format
+We accept all dates that are valid for a journal, barring partial dates.
+In other words, the formats `YYYY-MM-DD`, `YYYY/MM/DD`, and `YYYY.MM.DD` are accepted, leading zeros are authorised.
 
 ## Usage
 ```
-Usage: hlocker.EXE [-v|--version] [-f|--journal-file JOURNAL_FILE]
+Usage: hlocker [-v|--version] [-f|--journal-file JOURNAL_FILE]
                    [--locker-file LOCKER_FILE]
   Close/Open account assertions for hledger journal files
 

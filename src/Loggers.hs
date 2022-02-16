@@ -1,8 +1,8 @@
 {-# LANGUAGE ConstraintKinds  #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase       #-}
-module Loggers where
-import           Colog.Core                 (LogAction (LogAction))
+module Loggers (Logger, Loggable, logDebug, logError, logNone, logInfo, makeLoggers, runLoggers) where
+import           Colog.Core                 (LogAction (LogAction), cfilter)
 import           Colourista                 (blue, green, red, reset)
 import           Control.Monad.IO.Class     (MonadIO (..))
 import           Control.Monad.Reader.Class (MonadReader (ask))
@@ -10,9 +10,13 @@ import           Data.Functor.Contravariant ((>$<))
 import           Data.Text                  (Text)
 import qualified Data.Text.IO               as TIO
 
-data Sev = None | Debug | Info | Error deriving stock (Eq, Ord)
+data Sev = None | Debug | Info | Error
 
 data Msg = Msg Sev Text
+
+isDebug :: Msg -> Bool
+isDebug (Msg Debug _) = True
+isDebug _             = False
 
 fmt :: Msg -> Text
 fmt (Msg s t) =  showSeverity s <> t
@@ -43,9 +47,7 @@ runLoggers m = do
     act m
 
 dropDebug :: Applicative m => Logger m -> Logger m
-dropDebug (LogAction act) = LogAction $ \case
-    Msg Debug _ -> pure ()
-    msg         -> act msg
+dropDebug = cfilter (not . isDebug)
 
 makeLoggers :: MonadIO m => Bool -> Logger m
 makeLoggers useDebug = filt useDebug $ fmt >$< LogAction (liftIO . TIO.putStrLn) where
