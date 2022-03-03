@@ -1,8 +1,9 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE RecordWildCards   #-}
-module ParserWorks (getLockers, parseLocker) where
+module HLocker.ParserWorks (getLockers, parseLocker) where
 
 import           Control.Monad.IO.Class     (MonadIO (..))
+import           Control.Monad.State.Strict (runStateT)
 import           Data.Bifunctor             (Bifunctor (bimap))
 import           Data.Either                (partitionEithers)
 import           Data.Maybe                 (catMaybes)
@@ -10,17 +11,15 @@ import           Data.Text                  (Text)
 import qualified Data.Text                  as Text
 import qualified Data.Text.IO               as TIO
 import           Data.Time.Calendar         (Day)
+import           HLocker.Types              (Locker (..),
+                                             LockerError (EmptyFile, LockerError),
+                                             Verb (..))
+import           Hledger.Data.Journal       (nulljournal)
 import qualified Hledger.Read.Common        as HRC
 import qualified Hledger.Utils.Parse        as HUP
 import           Text.Megaparsec            (Stream (Token), choice,
                                              errorBundlePretty, runParser)
-
-import           Control.Monad.State.Strict (runStateT)
-import           Hledger.Data.Journal       (nulljournal)
 import           Text.Megaparsec.Char       (hspace1, string')
-import           Types                      (Locker (..),
-                                             LockerError (EmptyFile, LockerError),
-                                             Verb (..))
 
 
 

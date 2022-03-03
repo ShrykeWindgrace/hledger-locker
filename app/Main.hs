@@ -1,8 +1,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE RecordWildCards            #-}
 module Main where
-import           Assertions                 (logFailedAssertion, recoverJournal,
-                                             runAssertions)
+
 import           Control.Monad.Error.Class  (MonadError (catchError))
 import           Control.Monad.Except       (ExceptT, runExceptT)
 import           Control.Monad.IO.Class     (MonadIO (..))
@@ -11,15 +10,20 @@ import           Control.Monad.Reader.Class (MonadReader)
 import           Control.Selective          (Selective)
 import           Data.Foldable              (traverse_)
 import qualified Data.Text                  as Text
-import           FileWorks                  (makeJournalPath, makeLockerPath)
-import           Loggers                    (Logger, logDebug, logError,
-                                             logNone, makeLoggers)
-import           Options.Applicative
-import           ParserWorks                (getLockers)
-import           Revision                   (gitVersion)
-import           System.Exit                (ExitCode (ExitFailure), exitWith)
-import           Types                      (Fails (..), prettyIOFail,
+import           HLocker                    (Fails (..), Logger, getLockers,
+                                             gitVersion, logDebug, logError,
+                                             logFailedAssertion, logNone,
+                                             makeJournalPath, makeLockerPath,
+                                             makeLoggers, prettyIOFail,
+                                             recoverJournal, runAssertions,
                                              showLockerError)
+import           Options.Applicative        (Parser, ParserInfo, execParser,
+                                             fullDesc, header, help, helper,
+                                             hidden, info, long, metavar,
+                                             optional, progDesc, short,
+                                             strOption, switch)
+import           System.Exit                (ExitCode (ExitFailure), exitWith)
+
 
 main :: IO ()
 main = do

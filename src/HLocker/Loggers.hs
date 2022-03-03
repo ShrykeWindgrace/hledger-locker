@@ -1,7 +1,7 @@
 {-# LANGUAGE ConstraintKinds  #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase       #-}
-module Loggers (Logger, Loggable, logDebug, logError, logNone, logInfo, makeLoggers, runLoggers) where
+module HLocker.Loggers (Logger, Loggable, logDebug, logError, logNone, logInfo, makeLoggers, runLoggers) where
 import           Colog.Core                 (LogAction (LogAction), cfilter)
 import           Colourista                 (blue, green, red, reset)
 import           Control.Monad.IO.Class     (MonadIO (..))

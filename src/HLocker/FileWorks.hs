@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE RecordWildCards  #-}
 
-module FileWorks (makeJournalPath, makeLockerPath) where
+module HLocker.FileWorks (makeJournalPath, makeLockerPath) where
 import           Control.Monad.Error.Class  (MonadError (throwError))
 import           Control.Monad.IO.Class     (MonadIO (..))
 import           Control.Monad.Reader.Class ()
@@ -11,12 +11,12 @@ import           Data.Bool                  (bool)
 import           Data.Functor               ((<&>))
 import           Data.List.NonEmpty         (NonEmpty ((:|)))
 import qualified Data.Text                  as Text
-import           Loggers                    (Loggable, logDebug)
-import           Machinery                  (failLEV, selectFirst)
+import           HLocker.Loggers            (Loggable, logDebug)
+import           HLocker.Machinery          (failLEV, selectFirst)
+import           HLocker.Types              (Fails (Fs), IOFail (..))
 import           System.Directory           (doesFileExist, getHomeDirectory)
 import           System.Environment         (lookupEnv)
 import           System.FilePath            ((</>))
-import           Types                      (Fails (Fs), IOFail (..))
 
 data FileConf a = FileConf {
     envVar      :: String,

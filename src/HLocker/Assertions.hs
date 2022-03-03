@@ -2,21 +2,21 @@
 {-# LANGUAGE RecordWildCards  #-}
 {-# LANGUAGE TupleSections    #-}
 {-# LANGUAGE ViewPatterns     #-}
-module Assertions where
+module HLocker.Assertions where
 import           Control.Monad.Error.Class  (MonadError (throwError))
 import           Control.Monad.Except       (runExceptT)
 import           Control.Monad.IO.Class     (MonadIO (..))
 import           Data.Maybe                 (fromMaybe)
 import qualified Data.Text.IO               as Text
 import           Data.Time.Calendar         (Day)
+import           HLocker.Loggers            (Loggable, logError, logNone)
+import           HLocker.Types              (Fails (JParsing),
+                                             Locker (Locker, acc, date, verb),
+                                             Verb (Close, Open), showLocker)
 import qualified Hledger.Data.Transaction   as HDT
 import qualified Hledger.Data.Types         as HDT
 import           Hledger.Read.Common        (definputopts)
 import           Hledger.Read.JournalReader (journalp, parseAndFinaliseJournal)
-import           Loggers                    (Loggable, logError, logNone)
-import           Types                      (Fails (JParsing),
-                                             Locker (Locker, acc, date, verb),
-                                             Verb (Close, Open), showLocker)
 
 type Result = (Locker, HDT.Transaction)
 

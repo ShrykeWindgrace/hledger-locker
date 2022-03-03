@@ -3,9 +3,9 @@ import           Test.Hspec.Megaparsec (shouldFailOn, shouldParse,
                                         shouldSucceedOn)
 
 import           Data.Time.Calendar    (fromGregorian)
-import           ParserWorks           (parseLocker)
+import           HLocker               (Locker (Locker), Verb (Close),
+                                        parseLocker)
 import           Text.Megaparsec       (runParser)
-import           Types                 (Locker (Locker), Verb (Close))
 
 main :: IO ()
 main = hspec $ do

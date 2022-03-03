@@ -26,13 +26,14 @@ source-repository head
 
 library
   exposed-modules:
-      Assertions
-      FileWorks
-      Loggers
-      Machinery
-      ParserWorks
-      Revision
-      Types
+      HLocker
+      HLocker.Assertions
+      HLocker.FileWorks
+      HLocker.Loggers
+      HLocker.Machinery
+      HLocker.ParserWorks
+      HLocker.Revision
+      HLocker.Types
   other-modules:
       Paths_hledger_locker
   hs-source-dirs:

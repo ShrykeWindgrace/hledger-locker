@@ -1,6 +1,6 @@
 {-# LANGUAGE CPP             #-}
 {-# LANGUAGE TemplateHaskell #-}
-module Revision (gitVersion) where
+module HLocker.Revision (gitVersion) where
 
 import           Data.Version         (showVersion)
 import           Development.GitRev   (gitBranch, gitCommitCount, gitHash)

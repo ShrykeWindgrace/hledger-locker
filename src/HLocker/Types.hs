@@ -1,6 +1,5 @@
-{-# LANGUAGE DeriveFunctor   #-}
 {-# LANGUAGE RecordWildCards #-}
-module Types where
+module HLocker.Types where
 import           Data.List.NonEmpty (NonEmpty, toList)
 import           Data.Text          (Text)
 import qualified Data.Text          as Text
