@@ -99,4 +99,5 @@ test-suite hledger-locker-test
     , hspec
     , hspec-megaparsec
     , megaparsec
+    , time
   default-language: Haskell2010

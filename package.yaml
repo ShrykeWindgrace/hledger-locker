@@ -79,3 +79,4 @@ tests:
     - hspec
     - hspec-megaparsec
     - megaparsec
+    - time
