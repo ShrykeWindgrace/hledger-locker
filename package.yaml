@@ -16,14 +16,7 @@ description:         Please see the README on GitHub at <https://github.com/Shry
 
 dependencies:
   - base >= 4.7 && < 5
-  - co-log-core
-  - colourista
-  - megaparsec
-  - mtl
-  - transformers
-  - selective
-  - text
-  - time
+  
 ghc-options:
     - -Wcompat
     - -Wincomplete-record-updates
@@ -34,6 +27,7 @@ ghc-options:
     - -fwrite-ide-info
     - -hiedir=.hie
     - -Wall
+    - -Wunused-packages
       
 default-extensions:
   - DerivingStrategies
@@ -49,6 +43,14 @@ library:
     - directory
     - filepath
     - gitrev
+    - co-log-core
+    - colourista
+    - mtl
+    - transformers
+    - selective
+    - text
+    - time
+    - megaparsec >= 9
 executables:
   hlocker:
     main:                Main.hs
@@ -60,6 +62,9 @@ executables:
     dependencies:
     - hledger-locker
     - optparse-applicative
+    - text
+    - selective
+    - mtl
 
 tests:
   hledger-locker-test:
@@ -73,5 +78,4 @@ tests:
     - hledger-locker
     - hspec
     - hspec-megaparsec
-    - hledger-lib
     - megaparsec

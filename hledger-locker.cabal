@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.6.
+-- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
 
@@ -42,7 +42,7 @@ library
       StrictData
       FlexibleInstances
       OverloadedStrings
-  ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info -hiedir=.hie -Wall
+  ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info -hiedir=.hie -Wall -Wunused-packages
   build-depends:
       base >=4.7 && <5
     , co-log-core
@@ -51,7 +51,7 @@ library
     , filepath
     , gitrev
     , hledger-lib
-    , megaparsec
+    , megaparsec >=9
     , mtl
     , selective
     , text
@@ -70,19 +70,14 @@ executable hlocker
       StrictData
       FlexibleInstances
       OverloadedStrings
-  ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info -hiedir=.hie -Wall -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info -hiedir=.hie -Wall -Wunused-packages -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
-    , co-log-core
-    , colourista
     , hledger-locker
-    , megaparsec
     , mtl
     , optparse-applicative
     , selective
     , text
-    , time
-    , transformers
   default-language: Haskell2010
 
 test-suite hledger-locker-test
@@ -97,19 +92,11 @@ test-suite hledger-locker-test
       StrictData
       FlexibleInstances
       OverloadedStrings
-  ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info -hiedir=.hie -Wall -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info -hiedir=.hie -Wall -Wunused-packages -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
-    , co-log-core
-    , colourista
-    , hledger-lib
     , hledger-locker
     , hspec
     , hspec-megaparsec
     , megaparsec
-    , mtl
-    , selective
-    , text
-    , time
-    , transformers
   default-language: Haskell2010
