@@ -46,6 +46,10 @@ There is also a `--debug` flag for a more verbose output.
 Right now, only `stack build` and `stack install`. Other installation methods are not yet tested/written.
 Artefacts in releases will be available soon-ish.
 
+### Primitive nix build script
+
+There is a primitive nix build script in the root of the project. `nix-build` should work. Not really tested.
+
 ## To do
 
 ### Functionality
