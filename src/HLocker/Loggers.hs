@@ -3,12 +3,15 @@
 {-# LANGUAGE LambdaCase       #-}
 module HLocker.Loggers (Logger, Loggable, logDebug, logError, logNone, logInfo, makeLoggers, runLoggers) where
 import           Colog.Core                 (LogAction (LogAction), cfilter)
-import           Colourista                 (blue, green, red, reset)
+--import           Colourista                 (blue, green, red, reset)
 import           Control.Monad.IO.Class     (MonadIO (..))
 import           Control.Monad.Reader.Class (MonadReader (ask))
 import           Data.Functor.Contravariant ((>$<))
-import           Data.Text                  (Text)
+import           Data.Text                  (Text, pack)
 import qualified Data.Text.IO               as TIO
+import System.Console.ANSI (Color (..), ColorIntensity (Vivid),
+                            ConsoleLayer (Foreground), SGR (..),
+                            setSGRCode)
 
 data Sev = None | Debug | Info | Error
 
@@ -27,6 +30,12 @@ showSeverity = \case
     Debug -> green  <> "[Debug] " <> reset
     Info  -> blue <>  "[Info ] " <> reset
     Error -> red  <>  "[Error] " <> reset
+
+red, green, blue, reset :: Text
+red = pack $ setSGRCode [SetColor Foreground Vivid Red]
+green = pack $ setSGRCode [SetColor Foreground Vivid Green]
+blue = pack $ setSGRCode [SetColor Foreground Vivid Blue]
+reset = pack $ setSGRCode [Reset]
 
 type Logger m = LogAction m Msg
 

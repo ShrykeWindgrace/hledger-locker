@@ -45,9 +45,9 @@ library
       OverloadedStrings
   ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wmissing-fields -Wmissing-deriving-strategies -fwrite-ide-info -hiedir=.hie -Wall -Wunused-packages
   build-depends:
-      base >=4.7 && <5
+      ansi-terminal
+    , base >=4.7 && <5
     , co-log-core
-    , colourista
     , directory
     , filepath
     , gitrev

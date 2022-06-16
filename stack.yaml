@@ -1,9 +1,8 @@
 ---
-resolver:
-  url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/18/28.yaml
+resolver: nightly-2022-06-15
 
 extra-deps:
-  - colourista-0.1.0.1
+  - co-log-core-0.3.1.0
 
 nix:
   enable: true
