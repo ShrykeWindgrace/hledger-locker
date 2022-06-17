@@ -11,12 +11,12 @@ import           Data.Text                  (Text)
 import qualified Data.Text                  as Text
 import qualified Data.Text.IO               as TIO
 import           Data.Time.Calendar         (Day)
-import           HLocker.Types              (Locker (..),
-                                             LockerError (EmptyFile, LockerError),
-                                             Verb (..))
 import           Hledger.Data.Journal       (nulljournal)
 import qualified Hledger.Read.Common        as HRC
 import qualified Hledger.Utils.Parse        as HUP
+import           HLocker.Types              (Locker (..),
+                                             LockerError (EmptyFile, LockerError),
+                                             Verb (..))
 import           Text.Megaparsec            (Stream (Token), choice,
                                              errorBundlePretty, runParser)
 import           Text.Megaparsec.Char       (hspace1, string')
