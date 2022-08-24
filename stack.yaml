@@ -1,5 +1,5 @@
 ---
-resolver: nightly-2022-06-15
+resolver: nightly-2022-08-24
 
 extra-deps:
   - co-log-core-0.3.1.0

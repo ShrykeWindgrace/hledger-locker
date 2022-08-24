@@ -5,15 +5,15 @@
 
 packages:
 - completed:
-    hackage: co-log-core-0.3.1.0@sha256:9794bdedd1391decd0e22bdfe2b11abcb42e6cff7a4531e1f8882890828f4e63,3816
     pantry-tree:
-      size: 584
       sha256: d4cc089c40c5052ee02f91eafa567e0a239908aabc561dfa6080ba3bfc8c25bd
+      size: 584
+    hackage: co-log-core-0.3.1.0@sha256:9794bdedd1391decd0e22bdfe2b11abcb42e6cff7a4531e1f8882890828f4e63,3816
   original:
     hackage: co-log-core-0.3.1.0
 snapshots:
 - completed:
-    size: 611629
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2022/6/15.yaml
-    sha256: e6aa206ca389d8ad5b07d48cc54ca4787e27ed9dde90b0edf8875e6caec16bd2
-  original: nightly-2022-06-15
+    sha256: ff431937a638ebfaa5e6fec13c7ae575f01e02744d6ca5e5b1554f78cb5f88ad
+    size: 631953
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2022/8/24.yaml
+  original: nightly-2022-08-24
