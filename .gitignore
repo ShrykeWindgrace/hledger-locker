@@ -1,4 +1,6 @@
 .stack-work/
+dist-newstyle/
+result
 *~
 .vscode
 .hie/
