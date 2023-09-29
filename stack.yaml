@@ -1,12 +1,11 @@
 ---
-resolver: nightly-2023-04-05
-compiler: ghc-9.2.7
-
-extra-deps:
-  - co-log-core-0.3.1.0
+resolver: lts-21.13
+compiler: ghc-9.4.6
 
 nix:
   enable: true
+  packages:
+    - zlib
 
 packages:
   - .
