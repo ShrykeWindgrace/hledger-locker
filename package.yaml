@@ -46,7 +46,7 @@ library:
     - co-log-core
     - mtl
     - transformers
-    - selective
+    - selective >= 0.7 && < 0.8
     - text
     - time
     - megaparsec >= 9
@@ -63,7 +63,7 @@ executables:
     - hledger-locker
     - optparse-applicative
     - text
-    - selective
+    - selective >= 0.7 && < 0.8
     - mtl
 
 tests:

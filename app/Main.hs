@@ -7,7 +7,7 @@ import           Control.Monad.Except       (ExceptT, runExceptT)
 import           Control.Monad.IO.Class     (MonadIO (..))
 import           Control.Monad.Reader       (ReaderT (runReaderT))
 import           Control.Monad.Reader.Class (MonadReader)
-import           Control.Selective          (Selective)
+import           Control.Selective          (Selective (select), selectM)
 import           Data.Foldable              (traverse_)
 import qualified Data.Text                  as Text
 import           HLocker                    (Fails (..), Logger, getLockers,
@@ -52,8 +52,10 @@ cliOptions :: ParserInfo CliOptions
 cliOptions = info (helper <*> cliOptionsParser) (fullDesc <> progDesc "Close/Open account assertions for hledger journal files" <> header "hledger-locker")
 
 newtype App a = App {app :: ReaderT (Logger App) (ExceptT Fails IO) a}
-    deriving newtype (Functor, Applicative, Monad, MonadError Fails, MonadReader (Logger App), MonadIO, Selective)
+    deriving newtype (Functor, Applicative, Monad, MonadError Fails, MonadReader (Logger App), MonadIO)
 
+instance Selective App where
+    select = selectM
 
 
 runApp :: Logger App -> App ()  -> IO ()
