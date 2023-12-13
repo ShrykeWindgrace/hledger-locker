@@ -1,7 +1,4 @@
-{ compiler ? "ghc946" }:
-# current nipkgs-unstable is stuck with hledger-lib-1.27.1, which sets the bound basae < 4.17
-# the latter corresponds to ghc-9.4.1
-# hence we are stuck with 9.2.7 for the time being
+{ compiler ? "ghc948" }:
 
 let
   sources = import ./nix/sources.nix;

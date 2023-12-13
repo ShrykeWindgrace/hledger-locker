@@ -1,6 +1,6 @@
 ---
-resolver: lts-21.13
-compiler: ghc-9.4.6
+resolver: lts-21.24
+compiler: ghc-9.4.8
 
 nix:
   enable: true
