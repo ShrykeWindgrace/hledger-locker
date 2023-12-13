@@ -28,6 +28,7 @@ let
       pkgs.haskellPackages.stylish-haskell
       pkgs.haskellPackages.hlint
       pkgs.haskellPackages.hpack
+      #pkgs.haskellPackages.stan  # marked as broken and allowing broken packages does not fix the issue here
       #pkgs.niv
       pkgs.nixpkgs-fmt
     ];
