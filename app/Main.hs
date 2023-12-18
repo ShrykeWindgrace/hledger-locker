@@ -71,7 +71,7 @@ global mjp mlp = do
     jp <- makeJournalPath mjp
     lp <- makeLockerPath mlp
     (errs, ls) <- getLockers lp
-    traverse_ logDebug $ fmap showLockerError errs
+    traverse_ (logDebug . showLockerError) errs
     j <- recoverJournal jp
     case runAssertions j ls of
         [] -> logDebug "Ok"
