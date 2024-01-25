@@ -21,21 +21,17 @@ import           Options.Applicative        (Parser, ParserInfo, execParser,
                                              fullDesc, header, help, helper,
                                              hidden, info, long, metavar,
                                              optional, progDesc, short,
-                                             strOption, switch)
+                                             strOption, switch, infoOption)
 import           System.Exit                (ExitCode (ExitFailure), exitWith)
 
 
 main :: IO ()
 main = do
     CliOptions {..} <- execParser cliOptions
-    if showVersion then
-        putStrLn gitVersion
-    else do
-        runApp (makeLoggers verbose) $ global pathToJournal pathToLocker
+    runApp (makeLoggers verbose) $ global pathToJournal pathToLocker
 
 
 data CliOptions = CliOptions {
-        showVersion   :: Bool,
         pathToJournal :: Maybe FilePath,
         pathToLocker  :: Maybe FilePath,
         verbose       :: Bool
@@ -43,13 +39,15 @@ data CliOptions = CliOptions {
 
 cliOptionsParser :: Parser CliOptions
 cliOptionsParser = CliOptions <$>
-    switch (short 'v' <> long "version" <> help "Print version and exit") <*>
     optional (strOption (short 'f' <> long "journal-file" <> help "path to JOURNAL_FILE" <> metavar "JOURNAL_FILE")) <*>
-    optional (strOption (long "locker-file" <> help "path to LOCKER_FILE" <> metavar "LOCKER_FILE")) <*>
+    optional (strOption (short 'l' <> long "locker-file" <> help "path to LOCKER_FILE" <> metavar "LOCKER_FILE")) <*>
     switch (long "debug" <> hidden)
 
 cliOptions :: ParserInfo CliOptions
-cliOptions = info (helper <*> cliOptionsParser) (fullDesc <> progDesc "Close/Open account assertions for hledger journal files" <> header "hledger-locker")
+cliOptions = info (versioner <*> helper <*> cliOptionsParser) (fullDesc <> progDesc "Close/Open account assertions for hledger journal files" <> header "hledger-locker")
+
+versioner :: Parser (a -> a)
+versioner = infoOption gitVersion $ mconcat [short 'v', long "version", help "Print version and exit"]
 
 newtype App a = App {app :: ReaderT (Logger App) (ExceptT Fails IO) a}
     deriving newtype (Functor, Applicative, Monad, MonadError Fails, MonadReader (Logger App), MonadIO)
