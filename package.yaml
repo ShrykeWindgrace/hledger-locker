@@ -65,6 +65,7 @@ executables:
     - text
     - selective >= 0.7 && < 0.8
     - mtl
+    - directory
 
 tests:
   hledger-locker-test:

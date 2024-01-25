@@ -1,16 +1,19 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE RecordWildCards   #-}
-module HLocker.ParserWorks (getLockers, parseLocker) where
+module HLocker.ParserWorks (getLockers, parseLocker, runParseDate) where
 
 import           Control.Monad.IO.Class     (MonadIO (..))
 import           Control.Monad.State.Strict (runStateT)
-import           Data.Bifunctor             (Bifunctor (bimap))
+import           Data.Bifunctor             (Bifunctor (bimap), first)
 import           Data.Either                (partitionEithers)
 import           Data.Maybe                 (catMaybes)
 import           Data.Text                  (Text)
 import qualified Data.Text                  as Text
 import qualified Data.Text.IO               as TIO
 import           Data.Time.Calendar         (Day)
+import           Data.Time.LocalTime        (LocalTime (localDay),
+                                             ZonedTime (zonedTimeToLocalTime),
+                                             getZonedTime)
 import           Hledger.Data.Journal       (nulljournal)
 import qualified Hledger.Read.Common        as HRC
 import qualified Hledger.Utils.Parse        as HUP
@@ -57,3 +60,10 @@ getLockers fp = do
 
 parseDate :: HUP.TextParser m Day
 parseDate = fst <$> runStateT HRC.datep nulljournal
+
+runParseDate :: String -> IO (Either Text Day)
+runParseDate "" = Right <$> today
+runParseDate s = pure (first (Text.pack . errorBundlePretty) $ runParser parseDate "input" $ Text.pack s)
+
+today :: IO Day
+today = localDay . zonedTimeToLocalTime  <$> getZonedTime
