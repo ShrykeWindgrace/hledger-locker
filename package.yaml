@@ -8,27 +8,27 @@ maintainer:          "shryke.windgrace@gmail.com"
 copyright:           "2022 ShrykeWindgrace"
 
 extra-source-files:
-- README.md
-- ChangeLog.md
-- LICENSE
+  - README.md
+  - ChangeLog.md
+  - LICENSE
 
 description:         Please see the README on GitHub at <https://github.com/ShrykeWindgrace/hledger-locker#readme>
 
 dependencies:
   - base >= 4.7 && < 5
-  
+
 ghc-options:
-    - -Wcompat
-    - -Wincomplete-record-updates
-    - -Wincomplete-uni-patterns
-    - -Wredundant-constraints
-    - -Wmissing-fields
-    - -Wmissing-deriving-strategies
-    - -fwrite-ide-info
-    - -hiedir=.hie
-    - -Wall
-    - -Wunused-packages
-      
+  - -Wcompat
+  - -Wincomplete-record-updates
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
+  - -Wmissing-fields
+  - -Wmissing-deriving-strategies
+  - -fwrite-ide-info
+  - -hiedir=.hie
+  - -Wall
+  - -Wunused-packages
+
 default-extensions:
   - DerivingStrategies
   - StrictData
@@ -56,28 +56,28 @@ executables:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
-    - hledger-locker
-    - optparse-applicative
-    - text
-    - selective >= 0.7 && < 0.8
-    - mtl
-    - directory
+      - hledger-locker
+      - optparse-applicative
+      - text
+      - selective >= 0.7 && < 0.8
+      - mtl
+      - directory
 
 tests:
   hledger-locker-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
-    - hledger-locker
-    - hspec
-    - hspec-megaparsec
-    - megaparsec
-    - time
+      - hledger-locker
+      - hspec
+      - hspec-megaparsec
+      - megaparsec
+      - time
