@@ -1,6 +1,6 @@
 ---
 name:                hledger-locker
-version:             0.1.0.0
+version:             0.1.0.1
 github:              "ShrykeWindgrace/hledger-locker"
 license:             GPL-3
 author:              "ShrykeWindgrace"
