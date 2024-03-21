@@ -1,6 +1,8 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase                 #-}
 {-# LANGUAGE RecordWildCards            #-}
+{-# LANGUAGE InstanceSigs               #-}
+
 module Main where
 
 import           Control.Monad              (unless)
@@ -13,7 +15,7 @@ import           Control.Selective          (Selective (select), selectM)
 import           Data.Char                  (toLower)
 import           Data.Foldable              (traverse_)
 import qualified Data.Text                  as Text
-import           HLocker                    (Fails (..), Logger, getLockers,
+import           HLocker                    (Fails (..), Logger, appVersion, getLockers,
                                              gitVersion, logDebug, logError,
                                              logFailedAssertion, logNone,
                                              makeJournalPath, makeLockerPath,
@@ -69,15 +71,19 @@ cliOptionsParser :: Parser CliOptions
 cliOptionsParser = CliOptions <$> commonOptionsParser <*> commandChoiceParser
 
 cliOptions :: ParserInfo CliOptions
-cliOptions = info (versioner <*> helper <*> cliOptionsParser) (fullDesc <> progDesc "Close/Open account assertions for hledger journal files" <> header "hledger-locker")
+cliOptions = info (versioner <*> longVersioner <*> helper <*> cliOptionsParser) (fullDesc <> progDesc "Close/Open account assertions for hledger journal files" <> header "hledger-locker")
 
 versioner :: Parser (a -> a)
-versioner = infoOption gitVersion $ mconcat [short 'v', long "version", help "Print version and exit"]
+versioner = infoOption appVersion $ mconcat [short 'v', long "version", help "Print version and exit"]
+
+longVersioner :: Parser (a -> a)
+longVersioner = infoOption gitVersion $ mconcat [long "long-version", help "Print long version and exit"]
 
 newtype App a = App {app :: ReaderT (Logger App) (ExceptT Fails IO) a}
     deriving newtype (Functor, Applicative, Monad, MonadError Fails, MonadReader (Logger App), MonadIO)
 
 instance Selective App where
+    select :: App (Either a b) -> App (a -> b) -> App b
     select = selectM
 
 

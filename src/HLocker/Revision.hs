@@ -1,6 +1,6 @@
 {-# LANGUAGE CPP             #-}
 {-# LANGUAGE TemplateHaskell #-}
-module HLocker.Revision (gitVersion) where
+module HLocker.Revision (gitVersion, appVersion) where
 
 import           Data.Version         (showVersion)
 import           Development.GitRev   (gitBranch, gitCommitCount, gitHash)
@@ -9,12 +9,12 @@ import           System.Info          (compilerName)
 
 gitVersion :: String
 gitVersion = unwords [
-    "Version:", showVersion version,
+    "Version:", appVersion,
     "GitRevision:", $(gitHash),
     "(" ++ $(gitCommitCount), "commits)",
     "GitBranch:", $(gitBranch),
     "Compiler:", compilerName, TOOL_VERSION_ghc
     ]
 
-
-
+appVersion :: String
+appVersion = showVersion version
