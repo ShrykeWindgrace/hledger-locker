@@ -127,7 +127,7 @@ wizard mlp = do
 
     liftIO $ putStrLn "close/open? (default is 'close')"
     clop <- liftIO getLine
-    let act = if null clop || (toLower <$> clop) == "close" then "close" else "open"
+    let act = if null clop || (toLower <$> clop) == "close" then "close" else "open "
     liftIO $ putStrLn "when? (default is today)"
     dte <- liftIO getLine
     liftIO (runParseDate dte) >>= \case
