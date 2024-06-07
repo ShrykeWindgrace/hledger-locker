@@ -9,10 +9,10 @@ import           System.Info          (compilerName)
 
 gitVersion :: String
 gitVersion = case $$tGitInfoCwdTry of
-    Left str -> unwords [
+    Left _ -> unwords [
         "Version:", appVersion,
         "Compiler:", compilerName, TOOL_VERSION_ghc,
-        "msg:", str
+        "(no git info available)"
         ]
     Right g -> unwords [
         "Version:", appVersion,
