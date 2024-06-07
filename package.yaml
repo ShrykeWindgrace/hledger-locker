@@ -42,7 +42,7 @@ library:
     - hledger-lib
     - directory
     - filepath
-    - gitrev
+    - githash
     - co-log-core
     - mtl
     - transformers

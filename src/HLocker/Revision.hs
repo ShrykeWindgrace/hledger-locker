@@ -3,18 +3,24 @@
 module HLocker.Revision (gitVersion, appVersion) where
 
 import           Data.Version         (showVersion)
-import           Development.GitRev   (gitBranch, gitCommitCount, gitHash)
+import           GitHash
 import           Paths_hledger_locker (version)
 import           System.Info          (compilerName)
 
 gitVersion :: String
-gitVersion = unwords [
-    "Version:", appVersion,
-    "GitRevision:", $(gitHash),
-    "(" ++ $(gitCommitCount), "commits)",
-    "GitBranch:", $(gitBranch),
-    "Compiler:", compilerName, TOOL_VERSION_ghc
-    ]
+gitVersion = case $$tGitInfoCwdTry of
+    Left str -> unwords [
+        "Version:", appVersion,
+        "Compiler:", compilerName, TOOL_VERSION_ghc,
+        "msg:", str
+        ]
+    Right g -> unwords [
+        "Version:", appVersion,
+        "GitRevision:", giHash g,
+        "(" ++ show (giCommitCount g), "commits)",
+        "GitBranch:", giBranch g,
+        "Compiler:", compilerName, TOOL_VERSION_ghc
+        ]
 
 appVersion :: String
 appVersion = showVersion version
