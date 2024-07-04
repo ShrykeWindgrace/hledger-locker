@@ -8,15 +8,16 @@ import           Control.Monad.Except       (runExceptT)
 import           Control.Monad.IO.Class     (MonadIO (..))
 import           Data.Maybe                 (fromMaybe)
 import qualified Data.Text.IO               as Text
-import           Data.Time.Calendar         (Day)
 import           HLocker.Loggers            (Loggable, logError, logNone)
 import           HLocker.Types              (Fails (JParsing),
                                              Locker (Locker, acc, date, verb),
                                              Verb (Close, Open), showLocker)
 import qualified Hledger.Data.Transaction   as HDT
 import qualified Hledger.Data.Types         as HDT
-import           Hledger.Read.Common        (definputopts)
+import           Hledger.Read.Common        (definputopts, InputOpts (forecast_, auto_))
 import           Hledger.Read.JournalReader (journalp, parseAndFinaliseJournal)
+import Data.Time
+import Data.Time.Calendar.OrdinalDate (toOrdinalDate)
 
 type Result = (Locker, HDT.Transaction)
 
@@ -39,10 +40,10 @@ compPosting :: Locker -> (Day, HDT.Posting) -> Bool
 compPosting Locker{..} (d, p) = let day = fromMaybe d (HDT.pdate p) in
     HDT.paccount p == acc && comparator verb date day
 
-recoverJournal :: (Loggable m, MonadError Fails m, MonadIO m) => FilePath -> m HDT.Journal
-recoverJournal fp = do
+recoverJournal :: (Loggable m, MonadError Fails m, MonadIO m) => FilePath -> InputOpts -> m HDT.Journal
+recoverJournal fp opts = do
     c <- liftIO $ Text.readFile fp
-    j <-  liftIO $ runExceptT $ parseAndFinaliseJournal journalp definputopts fp c
+    j <-  liftIO $ runExceptT $ parseAndFinaliseJournal journalp opts fp c
     case j of
       Left err      -> throwError (JParsing err)
       Right journal -> pure journal
@@ -52,3 +53,16 @@ logFailedAssertion :: Loggable m => Result -> m ()
 logFailedAssertion (l, txn) = do
     logError $ showLocker l
     logNone $ HDT.showTransaction txn
+
+mkInputOptions :: Bool -> Bool -> IO InputOpts
+mkInputOptions useAuto useForecast = do
+    today <- localDay . zonedTimeToLocalTime <$> getZonedTime
+    let year = fst $ toOrdinalDate today
+    pure $ definputopts {
+        auto_ = useAuto,
+        forecast_ = if useForecast
+            then
+                Just $ HDT.DateSpan (Just $ HDT.Exact $ fromGregorian year 1 1) (Just $ HDT.Exact today)
+            else
+                Nothing
+        }

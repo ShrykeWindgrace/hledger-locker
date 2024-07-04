@@ -2,6 +2,7 @@
 {-# LANGUAGE LambdaCase                 #-}
 {-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE InstanceSigs               #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
 module Main where
 
@@ -19,7 +20,7 @@ import           HLocker                    (Fails (..), Logger, appVersion, get
                                              gitVersion, logDebug, logError,
                                              logFailedAssertion, logNone,
                                              makeJournalPath, makeLockerPath,
-                                             makeLoggers, prettyIOFail,
+                                             makeLoggers, mkInputOptions, prettyIOFail,
                                              recoverJournal, runAssertions,
                                              runParseDate, showLockerError)
 import           Options.Applicative        (Parser, ParserInfo, command,
@@ -27,7 +28,7 @@ import           Options.Applicative        (Parser, ParserInfo, command,
                                              helper, hidden, hsubparser, info,
                                              infoOption, long, metavar,
                                              optional, progDesc, short,
-                                             strOption, switch, (<|>))
+                                             strOption, switch, (<|>), showDefault)
 import           System.Directory           (doesFileExist)
 import           System.Exit                (ExitCode (ExitFailure), exitWith)
 
@@ -37,7 +38,7 @@ main = do
     CliOptions {..} <- execParser cliOptions
     case com of
         Check {..} ->
-            runApp (makeLoggers $ verbose commonOptions) $ global pathToJournal $ pathToLocker commonOptions
+            runApp (makeLoggers $ verbose commonOptions) $ global commonOptions pathToJournal $ pathToLocker commonOptions
         Wizard -> runApp (makeLoggers $ verbose commonOptions) $ wizard $ pathToLocker commonOptions
 
 
@@ -48,13 +49,17 @@ data CliOptions = CliOptions {
 
 data CommonOptions = CommonOptions {
         pathToLocker :: Maybe FilePath,
-        verbose      :: Bool
-    }
+        verbose      :: Bool,
+        autoTxns     :: Bool,
+        forecastTxns :: Bool
+    } deriving stock Show
 
 commonOptionsParser :: Parser CommonOptions
 commonOptionsParser = CommonOptions <$>
     optional (strOption (short 'l' <> long "locker-file" <> help "path to LOCKER_FILE" <> metavar "LOCKER_FILE")) <*>
-    switch (long "debug" <> hidden)
+    switch (long "debug" <> hidden) <*>
+    switch (long "auto" <> help "enable automatic transactions" <> showDefault) <*>
+    switch (long "forecast" <> help "enable forecast transactions for this year" <> showDefault)
 
 data CommandChoice = Wizard | Check {pathToJournal :: Maybe FilePath}
 
@@ -95,13 +100,14 @@ runApp logs (App app) = do
         Left _ -> putStrLn "Impossible happened: all fails should have been logged by now"
 
 
-global :: Maybe FilePath -> Maybe FilePath -> App ()
-global mjp mlp = do
+global :: CommonOptions -> Maybe FilePath -> Maybe FilePath -> App ()
+global CommonOptions{autoTxns, forecastTxns} mjp mlp = do
     jp <- makeJournalPath mjp
     lp <- makeLockerPath mlp
     (errs, ls) <- getLockers lp
     traverse_ (logDebug . showLockerError) errs
-    j <- recoverJournal jp
+    iopts <- liftIO $ mkInputOptions autoTxns forecastTxns
+    j <- recoverJournal jp iopts
     case runAssertions j ls of
         [] -> logDebug "Ok"
         z -> traverse_ logFailedAssertion z >> liftIO (exitWith (ExitFailure 4))
