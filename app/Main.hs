@@ -1,8 +1,8 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE LambdaCase                 #-}
-{-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE InstanceSigs               #-}
-{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE LambdaCase                 #-}
+{-# LANGUAGE NamedFieldPuns             #-}
+{-# LANGUAGE RecordWildCards            #-}
 
 module Main where
 
@@ -16,11 +16,12 @@ import           Control.Selective          (Selective (select), selectM)
 import           Data.Char                  (toLower)
 import           Data.Foldable              (traverse_)
 import qualified Data.Text                  as Text
-import           HLocker                    (Fails (..), Logger, appVersion, getLockers,
-                                             gitVersion, logDebug, logError,
-                                             logFailedAssertion, logNone,
-                                             makeJournalPath, makeLockerPath,
-                                             makeLoggers, mkInputOptions, prettyIOFail,
+import           HLocker                    (Fails (..), Logger, appVersion,
+                                             getLockers, gitVersion, logDebug,
+                                             logError, logFailedAssertion,
+                                             logNone, makeJournalPath,
+                                             makeLockerPath, makeLoggers,
+                                             mkInputOptions, prettyIOFail,
                                              recoverJournal, runAssertions,
                                              runParseDate, showLockerError)
 import           Options.Applicative        (Parser, ParserInfo, command,
@@ -28,7 +29,8 @@ import           Options.Applicative        (Parser, ParserInfo, command,
                                              helper, hidden, hsubparser, info,
                                              infoOption, long, metavar,
                                              optional, progDesc, short,
-                                             strOption, switch, (<|>), showDefault)
+                                             showDefault, strOption, switch,
+                                             (<|>))
 import           System.Directory           (doesFileExist)
 import           System.Exit                (ExitCode (ExitFailure), exitWith)
 

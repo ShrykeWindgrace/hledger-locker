@@ -3,21 +3,23 @@
 {-# LANGUAGE TupleSections    #-}
 {-# LANGUAGE ViewPatterns     #-}
 module HLocker.Assertions where
-import           Control.Monad.Error.Class  (MonadError (throwError))
-import           Control.Monad.Except       (runExceptT)
-import           Control.Monad.IO.Class     (MonadIO (..))
-import           Data.Maybe                 (fromMaybe)
-import qualified Data.Text.IO               as Text
-import           HLocker.Loggers            (Loggable, logError, logNone)
-import           HLocker.Types              (Fails (JParsing),
-                                             Locker (Locker, acc, date, verb),
-                                             Verb (Close, Open), showLocker)
-import qualified Hledger.Data.Transaction   as HDT
-import qualified Hledger.Data.Types         as HDT
-import           Hledger.Read.Common        (definputopts, InputOpts (forecast_, auto_))
-import           Hledger.Read.JournalReader (journalp, parseAndFinaliseJournal)
-import Data.Time
-import Data.Time.Calendar.OrdinalDate (toOrdinalDate)
+import           Control.Monad.Error.Class      (MonadError (throwError))
+import           Control.Monad.Except           (runExceptT)
+import           Control.Monad.IO.Class         (MonadIO (..))
+import           Data.Maybe                     (fromMaybe)
+import qualified Data.Text.IO                   as Text
+import           Data.Time
+import           Data.Time.Calendar.OrdinalDate (toOrdinalDate)
+import qualified Hledger.Data.Transaction       as HDT
+import qualified Hledger.Data.Types             as HDT
+import           Hledger.Read.Common            (InputOpts (auto_, forecast_),
+                                                 definputopts)
+import           Hledger.Read.JournalReader     (journalp,
+                                                 parseAndFinaliseJournal)
+import           HLocker.Loggers                (Loggable, logError, logNone)
+import           HLocker.Types                  (Fails (JParsing),
+                                                 Locker (Locker, acc, date, verb),
+                                                 Verb (Close, Open), showLocker)
 
 type Result = (Locker, HDT.Transaction)
 
