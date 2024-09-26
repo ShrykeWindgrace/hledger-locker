@@ -1,11 +1,11 @@
 ---
 name:                hledger-locker
-version:             0.2.0.0
+version:             0.2.1.0
 github:              "ShrykeWindgrace/hledger-locker"
 license:             GPL-3
 author:              "ShrykeWindgrace"
 maintainer:          "shryke.windgrace@gmail.com"
-copyright:           "2022 ShrykeWindgrace"
+copyright:           "2024 ShrykeWindgrace"
 
 extra-source-files:
   - README.md
@@ -51,6 +51,7 @@ library:
     - time
     - megaparsec >= 9
     - ansi-terminal
+    - template-haskell
 executables:
   hlocker:
     main:                Main.hs

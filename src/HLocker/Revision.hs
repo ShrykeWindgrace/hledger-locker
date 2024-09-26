@@ -6,13 +6,16 @@ import           Data.Version         (showVersion)
 import           GitHash
 import           Paths_hledger_locker (version)
 import           System.Info          (compilerName)
+import Language.Haskell.TH
+import System.Environment
+import Language.Haskell.TH.Syntax
 
 gitVersion :: String
 gitVersion = case $$tGitInfoCwdTry of
     Left _ -> unwords [
         "Version:", appVersion,
         "Compiler:", compilerName, TOOL_VERSION_ghc,
-        "(no git info available)"
+        mkGitRevision
         ]
     Right g -> unwords [
         "Version:", appVersion,
@@ -24,3 +27,11 @@ gitVersion = case $$tGitInfoCwdTry of
 
 appVersion :: String
 appVersion = showVersion version
+
+mkGitRevision :: String
+mkGitRevision = case $( do
+    v <- runIO $ lookupEnv "HLOCKER_BUILD_TIME_GIT_REV"
+    lift v
+    ) of
+    Nothing -> "(no git info available)"
+    Just rev -> "GitRevision: " <> rev
