@@ -18,7 +18,13 @@
     in
     {
       packages.${packageName} =
-        haskellPackages.callCabal2nix packageName self { };
+        (haskellPackages.callCabal2nix packageName self { }).overrideAttrs(finalAttrs: previousAttrs : {
+          buildPhase = ''
+            export HLOCKER_BUILD_TIME_GIT_REV=${builtins.substring 0 7 (
+              if self ? rev then self.rev else ""
+            )}
+          '' + previousAttrs.buildPhase;
+        });
       packages.default = self.packages.${system}.${packageName};
       devShells.default = haskellPackages.shellFor {
         nativeBuildInputs = [
