@@ -143,5 +143,5 @@ wizard mlp = do
         Right d -> liftIO $ do
             putStrLn "Account name?"
             s <- getLine
-            appendFile lp $ unwords [act, show d, s, "\n"]
+            appendFile lp $ unwords [act, show d, s <> "\n"]
     `catchError` handler
