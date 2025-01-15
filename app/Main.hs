@@ -33,6 +33,7 @@ import           Options.Applicative        (Parser, ParserInfo, command,
                                              (<|>))
 import           System.Directory           (doesFileExist)
 import           System.Exit                (ExitCode (ExitFailure), exitWith)
+import System.IO
 
 
 main :: IO ()
@@ -133,15 +134,15 @@ wizard mlp = do
 
     lp <- makeLockerPath mlp
 
-    liftIO $ putStrLn "close/open? (default is 'close')"
+    liftIO $ putStr "close/open? (default is 'close')\n> " *> hFlush stdout
     clop <- liftIO getLine
     let act = if null clop || (toLower <$> clop) == "close" then "close" else "open "
-    liftIO $ putStrLn "when? (default is today)"
+    liftIO $ putStr "when? (default is today)\n> " *> hFlush stdout
     dte <- liftIO getLine
     liftIO (runParseDate dte) >>= \case
         Left err -> logError err
         Right d -> liftIO $ do
-            putStrLn "Account name?"
+            putStr "Account name?\n> " *> hFlush stdout
             s <- getLine
             appendFile lp $ unwords [act, show d, s <> "\n"]
     `catchError` handler

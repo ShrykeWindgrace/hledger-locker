@@ -5,7 +5,7 @@ cabal-version: 1.12
 -- see: https://github.com/sol/hpack
 
 name:           hledger-locker
-version:        0.2.1.0
+version:        0.2.1.1
 description:    Please see the README on GitHub at <https://github.com/ShrykeWindgrace/hledger-locker#readme>
 homepage:       https://github.com/ShrykeWindgrace/hledger-locker#readme
 bug-reports:    https://github.com/ShrykeWindgrace/hledger-locker/issues
