@@ -15,16 +15,31 @@
       haskellPackages = pkgs.haskell.packages.${ghc}.extend (hself: hsuper: {
         hledger-locker = hself.callCabal2nix packageName self { };
       });
+      packagePostOverrides = pkg: with pkgs.haskell.lib.compose; pkgs.lib.pipe pkg [
+        disableExecutableProfiling
+        disableLibraryProfiling
+        dontBenchmark
+        dontCoverage
+        dontDistribute
+        dontHaddock
+        dontHyperlinkSource
+        doStrip
+        enableDeadCodeElimination
+        justStaticExecutables
+
+        dontCheck
+      ];
     in
     {
       packages.${packageName} =
-        (haskellPackages.callCabal2nix packageName self { }).overrideAttrs(finalAttrs: previousAttrs : {
+        packagePostOverrides
+        ((haskellPackages.callCabal2nix packageName self { }).overrideAttrs(finalAttrs: previousAttrs : {
           buildPhase = ''
             export HLOCKER_BUILD_TIME_GIT_REV=${builtins.substring 0 7 (
               if self ? rev then self.rev else ""
             )}
           '' + previousAttrs.buildPhase;
-        });
+        }));
       packages.default = self.packages.${system}.${packageName};
       devShells.default = haskellPackages.shellFor {
         nativeBuildInputs = [

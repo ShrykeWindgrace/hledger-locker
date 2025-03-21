@@ -6,7 +6,7 @@ module HLocker.Revision (gitVersion, appVersion) where
 
 import           Data.Version         (showVersion)
 import GitHash ( giBranch, giCommitCount, giHash, tGitInfoCwdTry )
-import           Paths_hledger_locker (version)
+import           PackageInfo_hledger_locker (version)
 import           System.Info          (compilerName)
 import Language.Haskell.TH ( runIO )
 import System.Environment ( lookupEnv )

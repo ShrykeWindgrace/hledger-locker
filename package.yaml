@@ -1,6 +1,6 @@
 ---
 name:                hledger-locker
-version:             0.2.1.1
+version:             0.2.1.2
 github:              "ShrykeWindgrace/hledger-locker"
 license:             GPL-3
 author:              "ShrykeWindgrace"
@@ -52,6 +52,11 @@ library:
     - megaparsec >= 9
     - ansi-terminal
     - template-haskell
+  when:
+  - condition: false
+    other-modules: Paths_hledger_locker
+  generated-other-modules: PackageInfo_hledger_locker
+
 executables:
   hlocker:
     main:                Main.hs
@@ -67,6 +72,9 @@ executables:
       - selective >= 0.7 && < 0.8
       - mtl
       - directory
+    when:
+    - condition: false
+      other-modules: Paths_hledger_locker
 
 tests:
   hledger-locker-test:

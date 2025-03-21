@@ -1,11 +1,11 @@
-cabal-version: 1.12
+cabal-version: 2.0
 
 -- This file has been generated from package.yaml by hpack version 0.37.0.
 --
 -- see: https://github.com/sol/hpack
 
 name:           hledger-locker
-version:        0.2.1.1
+version:        0.2.1.2
 description:    Please see the README on GitHub at <https://github.com/ShrykeWindgrace/hledger-locker#readme>
 homepage:       https://github.com/ShrykeWindgrace/hledger-locker#readme
 bug-reports:    https://github.com/ShrykeWindgrace/hledger-locker/issues
@@ -35,7 +35,9 @@ library
       HLocker.Revision
       HLocker.Types
   other-modules:
-      Paths_hledger_locker
+      PackageInfo_hledger_locker
+  autogen-modules:
+      PackageInfo_hledger_locker
   hs-source-dirs:
       src
   default-extensions:
@@ -63,8 +65,6 @@ library
 
 executable hlocker
   main-is: Main.hs
-  other-modules:
-      Paths_hledger_locker
   hs-source-dirs:
       app
   default-extensions:
@@ -87,6 +87,8 @@ test-suite hledger-locker-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Paths_hledger_locker
+  autogen-modules:
       Paths_hledger_locker
   hs-source-dirs:
       test
