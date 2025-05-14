@@ -8,7 +8,7 @@
     { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
     let
-      ghc = "ghc966";
+      ghc = "ghc984";
       pkgs = nixpkgs.legacyPackages.${system};
 
       packageName = "hledger-locker";
