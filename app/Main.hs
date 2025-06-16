@@ -6,7 +6,7 @@
 
 module Main where
 
-import           Control.Monad              (unless)
+import           Control.Monad              (unless, when)
 import           Control.Monad.Error.Class  (MonadError (catchError))
 import           Control.Monad.Except       (ExceptT, runExceptT)
 import           Control.Monad.IO.Class     (MonadIO (..))
@@ -18,7 +18,7 @@ import           Data.Foldable              (traverse_)
 import qualified Data.Text                  as Text
 import           HLocker                    (Fails (..), Logger, appVersion,
                                              getLockers, gitVersion, logDebug,
-                                             logError, logFailedAssertion,
+                                             logError, logFailedAssertion, logInfo,
                                              logNone, makeJournalPath,
                                              makeLockerPath, makeLoggers,
                                              mkInputOptions, prettyIOFail,
@@ -32,7 +32,7 @@ import           Options.Applicative        (Parser, ParserInfo, command,
                                              showDefault, strOption, switch,
                                              (<|>))
 import           System.Directory           (doesFileExist)
-import           System.Exit                (ExitCode (ExitFailure), exitWith)
+import           System.Exit                (ExitCode (ExitFailure), exitWith, exitSuccess)
 import System.IO
 
 
@@ -42,7 +42,7 @@ main = do
     case com of
         Check {..} ->
             runApp (makeLoggers $ verbose commonOptions) $ global commonOptions pathToJournal $ pathToLocker commonOptions
-        Wizard -> runApp (makeLoggers $ verbose commonOptions) $ wizard $ pathToLocker commonOptions
+        Wizard kg -> runApp (makeLoggers $ verbose commonOptions) $ wizard kg $ pathToLocker commonOptions
 
 
 data CliOptions = CliOptions {
@@ -64,14 +64,17 @@ commonOptionsParser = CommonOptions <$>
     switch (long "auto" <> help "enable automatic transactions" <> showDefault) <*>
     switch (long "forecast" <> help "enable forecast transactions for this year" <> showDefault)
 
-data CommandChoice = Wizard | Check {pathToJournal :: Maybe FilePath}
+data CommandChoice = Wizard Bool | Check {pathToJournal :: Maybe FilePath}
 
 checkParser :: Parser CommandChoice
 checkParser  = Check <$> optional (strOption (short 'f' <> long "journal-file" <> help "path to LEDGER_FILE" <> metavar "LEDGER_FILE"))
 
+wizardParser :: Parser CommandChoice
+wizardParser = Wizard <$> switch (long "keep-going" <> short 'k' <> showDefault <> help "keep going after a successful addition of a lock")
+
 commandChoiceParser :: Parser CommandChoice
 commandChoiceParser = hsubparser (
-    command "wizard" (info (pure Wizard) (progDesc "Add new assertions") ) <>
+    command "wizard" (info wizardParser (progDesc "Add new assertions") ) <>
     command "check" ( info checkParser (progDesc "Run existing assertions (default)"))
     ) <|> checkParser
 
@@ -122,8 +125,8 @@ handler (JParsing e) = logError "Journal parsing failed:" >> logNone (Text.pack 
 handler (Fs tag iofs) = logError "IO error:" >> logNone (Text.pack $ prettyIOFail tag iofs) >> liftIO (exitWith (ExitFailure 1))
 
 
-wizard :: Maybe FilePath -> App ()
-wizard mlp = do
+wizard :: Bool -> Maybe FilePath -> App ()
+wizard keepGoing mlp = do
     -- create file if it does not exist
     case mlp of
         Nothing -> pure ()
@@ -134,15 +137,27 @@ wizard mlp = do
 
     lp <- makeLockerPath mlp
 
-    liftIO $ putStr "close/open? (default is 'close')\n> " *> hFlush stdout
+    liftIO $ putStr "close/open/quit? (default is 'close')\n> " *> hFlush stdout
     clop <- liftIO getLine
-    let act = if null clop || (toLower <$> clop) == "close" then "close" else "open "
-    liftIO $ putStr "when? (default is today)\n> " *> hFlush stdout
-    dte <- liftIO getLine
-    liftIO (runParseDate dte) >>= \case
-        Left err -> logError err
-        Right d -> liftIO $ do
-            putStr "Account name?\n> " *> hFlush stdout
-            s <- getLine
-            appendFile lp $ unwords [act, show d, s <> "\n"]
+    let act = selectAction clop
+    if act == "quit" then
+        liftIO exitSuccess
+    else do
+        liftIO $ putStr "when? (default is today)\n> " *> hFlush stdout
+        dte <- liftIO getLine
+        liftIO (runParseDate dte) >>= \case
+            Left err -> logError err
+            Right d -> (liftIO $ do
+                putStr "Account name?\n> " *> hFlush stdout
+                s <- getLine
+                appendFile lp $ unwords [act, show d, s <> "\n"]) >> logInfo (Text.pack $ "updated file '" <> lp <> "'")
+        when keepGoing $ wizard keepGoing mlp
+
     `catchError` handler
+
+selectAction :: String -> String
+selectAction "" = "close"
+selectAction "quit" = "quit"
+selectAction s
+    | (toLower <$> s) == "close" = "close"
+    | otherwise = "open "
