@@ -45,7 +45,7 @@ compPosting Locker{..} (d, p) = let day = fromMaybe d (HDT.pdate p) in
 recoverJournal :: (Loggable m, MonadError Fails m, MonadIO m) => FilePath -> InputOpts -> m HDT.Journal
 recoverJournal fp opts = do
     c <- liftIO $ Text.readFile fp
-    j <-  liftIO $ runExceptT $ parseAndFinaliseJournal journalp opts fp c
+    j <-  liftIO $ runExceptT $ parseAndFinaliseJournal (journalp opts) opts fp c
     case j of
       Left err      -> throwError (JParsing err)
       Right journal -> pure journal
