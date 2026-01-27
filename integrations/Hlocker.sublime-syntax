@@ -1,0 +1,26 @@
+%YAML 1.2
+---
+# https://www.sublimetext.com/docs/scope_naming.html
+# http://www.sublimetext.com/docs/syntax.html
+
+name: Hlocker
+file_extensions: ['hlocker', 'locker']
+scope: source.hlocker
+
+variables:
+    date: |-
+        (?x:
+            \d{4}[/-]\d{2}[/-]\d{2} |
+            \d{2}[/-]\d{2}[/-]\d{2} |
+            \d{2}[/-]\d{2}
+        )
+
+contexts:
+    main:
+        - match: ^(close|open)\s+({{date}})\s+([^;]*)
+          captures:
+            1: keyword.control
+            2: string.other.date
+            3: variable.other.constant
+        - match: ([;#].*)$
+          scope: comment.line

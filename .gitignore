@@ -8,5 +8,6 @@ result-*
 stan.html
 
 *.sublime-*
+!*.sublime-syntax
 *.zip
 *.exe
