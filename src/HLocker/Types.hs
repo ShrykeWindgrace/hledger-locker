@@ -1,5 +1,15 @@
 {-# LANGUAGE RecordWildCards #-}
-module HLocker.Types where
+module HLocker.Types (
+    IOFail (..),
+    prettyIOFail,
+    LockerError (..),
+    showLockerError,
+    isEmptyFile,
+    Fails (..),
+    Verb (..),
+    Locker (..),
+    showLocker
+    ) where
 import           Data.List.NonEmpty (NonEmpty, toList)
 import           Data.Text          (Text)
 import qualified Data.Text          as Text
@@ -20,8 +30,13 @@ showLockerError :: LockerError -> Text
 showLockerError (EmptyFile fp) = Text.pack $ "File is empty: " <> fp
 showLockerError (LockerError s m) = "Parsing error at \"" <> s <> "\" with message " <> Text.pack m
 
+-- | True for the \"locker file is empty\" case, as opposed to a genuine parse error.
+isEmptyFile :: LockerError -> Bool
+isEmptyFile EmptyFile{} = True
+isEmptyFile _           = False
 
-data Fails = Fs String (NonEmpty IOFail) | JParsing String | LParsing String
+
+data Fails = Fs String (NonEmpty IOFail) | JParsing String
 
 
 

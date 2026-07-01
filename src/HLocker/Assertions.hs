@@ -2,7 +2,14 @@
 {-# LANGUAGE RecordWildCards  #-}
 {-# LANGUAGE TupleSections    #-}
 {-# LANGUAGE ViewPatterns     #-}
-module HLocker.Assertions where
+module HLocker.Assertions (
+    Result,
+    runAssertion,
+    runAssertions,
+    logFailedAssertion,
+    recoverJournal,
+    mkInputOptions
+    ) where
 import           Control.Monad.Error.Class      (MonadError (throwError))
 import           Control.Monad.Except           (runExceptT)
 import           Control.Monad.IO.Class         (MonadIO (..))

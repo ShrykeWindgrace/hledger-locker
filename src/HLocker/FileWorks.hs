@@ -1,11 +1,9 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE RecordWildCards  #-}
 
-module HLocker.FileWorks (makeJournalPath, makeLockerPath) where
+module HLocker.FileWorks (makeJournalPath, makeLockerPath, resolveLockerPath) where
 import           Control.Monad.Error.Class  (MonadError (throwError))
 import           Control.Monad.IO.Class     (MonadIO (..))
-import           Control.Monad.Reader.Class ()
-import           Control.Monad.Trans.Class  ()
 import           Control.Selective          (Selective)
 import           Data.Bool                  (bool)
 import           Data.Functor               ((<&>))
@@ -58,3 +56,19 @@ makeJournalPath = selectFilePath . defaultJournalConfig
 
 makeLockerPath :: (Loggable m, MonadIO m, Selective m, MonadError Fails m) => Maybe FilePath -> m FilePath
 makeLockerPath = selectFilePath . defaultLockerConfig
+
+-- | Resolve the path a locker file *would* live at (explicit, then env var, then
+--   the homedir default), WITHOUT requiring it to exist. Used by the wizard to
+--   bootstrap a brand-new locker file, whereas 'makeLockerPath' insists the file
+--   already exists.
+resolveLockerPath :: MonadIO m => Maybe FilePath -> m FilePath
+resolveLockerPath = resolveFileConf . defaultLockerConfig
+
+resolveFileConf :: MonadIO m => FileConf a -> m FilePath
+resolveFileConf FileConf{..} = liftIO $ case providedFP of
+    Just fp -> pure fp
+    Nothing -> do
+        viaEnv <- lookupEnv envVar
+        case viaEnv of
+            Just fp -> pure fp
+            Nothing -> (</> defaultName) <$> getHomeDirectory

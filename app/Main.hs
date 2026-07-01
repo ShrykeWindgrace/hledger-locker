@@ -13,16 +13,19 @@ import           Control.Monad.IO.Class     (MonadIO (..))
 import           Control.Monad.Reader       (ReaderT (runReaderT))
 import           Control.Monad.Reader.Class (MonadReader)
 import           Control.Selective          (Selective (select), selectM)
-import           Data.Char                  (toLower)
+import           Data.Char                  (isSpace, toLower)
 import           Data.Foldable              (traverse_)
+import           Data.List                  (partition)
 import qualified Data.Text                  as Text
-import           HLocker                    (Fails (..), Logger, appVersion,
-                                             getLockers, gitVersion, logDebug,
-                                             logError, logFailedAssertion, logInfo,
-                                             logNone, makeJournalPath,
-                                             makeLockerPath, makeLoggers,
-                                             mkInputOptions, prettyIOFail,
-                                             recoverJournal, runAssertions,
+import           HLocker                    (Fails (..), Logger,
+                                             Verb (Close, Open), appVersion,
+                                             getLockers, gitVersion, isEmptyFile,
+                                             logDebug, logError,
+                                             logFailedAssertion, logInfo, logNone,
+                                             makeJournalPath, makeLockerPath,
+                                             makeLoggers, mkInputOptions,
+                                             prettyIOFail, recoverJournal,
+                                             resolveLockerPath, runAssertions,
                                              runParseDate, showLockerError)
 import           Options.Applicative        (Parser, ParserInfo, command,
                                              execParser, fullDesc, header, help,
@@ -32,17 +35,19 @@ import           Options.Applicative        (Parser, ParserInfo, command,
                                              showDefault, strOption, switch,
                                              (<|>))
 import           System.Directory           (doesFileExist)
-import           System.Exit                (ExitCode (ExitFailure), exitWith, exitSuccess)
-import System.IO
+import           System.Exit                (ExitCode (ExitFailure), exitSuccess,
+                                             exitWith)
+import           System.IO                  (hFlush, hPutStrLn, stderr, stdout)
 
 
 main :: IO ()
 main = do
     CliOptions {..} <- execParser cliOptions
+    logs <- makeLoggers $ verbose commonOptions
     case com of
         Check {..} ->
-            runApp (makeLoggers $ verbose commonOptions) $ global commonOptions pathToJournal $ pathToLocker commonOptions
-        Wizard kg -> runApp (makeLoggers $ verbose commonOptions) $ wizard kg $ pathToLocker commonOptions
+            runApp logs $ global commonOptions pathToJournal $ pathToLocker commonOptions
+        Wizard kg -> runApp logs $ wizard kg $ pathToLocker commonOptions
 
 
 data CliOptions = CliOptions {
@@ -103,7 +108,9 @@ runApp logs (App app) = do
     z <- runExceptT $ runReaderT app logs
     case z of
         Right () -> pure ()
-        Left _ -> putStrLn "Impossible happened: all fails should have been logged by now"
+        Left _ -> do
+            hPutStrLn stderr "Impossible happened: all fails should have been logged by now"
+            exitWith (ExitFailure 255)
 
 
 global :: CommonOptions -> Maybe FilePath -> Maybe FilePath -> App ()
@@ -111,53 +118,71 @@ global CommonOptions{autoTxns, forecastTxns} mjp mlp = do
     jp <- makeJournalPath mjp
     lp <- makeLockerPath mlp
     (errs, ls) <- getLockers lp
-    traverse_ (logDebug . showLockerError) errs
+    let (empties, parseErrs) = partition isEmptyFile errs
+    -- An empty locker file is a warning, not a failure: there is nothing to check.
+    traverse_ (logInfo . showLockerError) empties
+    -- Genuine parse errors are reported, but we still check the lines that parsed.
+    traverse_ (logError . showLockerError) parseErrs
     iopts <- liftIO $ mkInputOptions autoTxns forecastTxns
     j <- recoverJournal jp iopts
-    case runAssertions j ls of
-        [] -> logDebug "Ok"
-        z -> traverse_ logFailedAssertion z >> liftIO (exitWith (ExitFailure 4))
+    let failures = runAssertions j ls
+    traverse_ logFailedAssertion failures
+    if not (null failures)
+        then liftIO $ exitWith (ExitFailure 4)
+        else if not (null parseErrs)
+            then liftIO $ exitWith (ExitFailure 3)
+            else logDebug "Ok"
     `catchError` handler
 
 handler :: Fails -> App ()
-handler (LParsing e) = logError "Locker parsing failed:" >> logNone (Text.pack e) >> liftIO (exitWith (ExitFailure 3))
 handler (JParsing e) = logError "Journal parsing failed:" >> logNone (Text.pack e) >> liftIO (exitWith (ExitFailure 2))
 handler (Fs tag iofs) = logError "IO error:" >> logNone (Text.pack $ prettyIOFail tag iofs) >> liftIO (exitWith (ExitFailure 1))
 
 
+data WizardAction = Quit | Act Verb
+
+selectAction :: String -> Maybe WizardAction
+selectAction s = case toLower <$> trim s of
+    ""      -> Just (Act Close) -- default
+    "close" -> Just (Act Close)
+    "open"  -> Just (Act Open)
+    "quit"  -> Just Quit
+    _       -> Nothing
+
+verbKeyword :: Verb -> String
+verbKeyword Close = "close"
+verbKeyword Open  = "open"
+
+trim :: String -> String
+trim = f . f where f = reverse . dropWhile isSpace
+
 wizard :: Bool -> Maybe FilePath -> App ()
 wizard keepGoing mlp = do
-    -- create file if it does not exist
-    case mlp of
-        Nothing -> pure ()
-        Just p -> liftIO $ do
-            ex <- doesFileExist p
-            unless ex $ appendFile p "; created by hlocker\n"
-
-
-    lp <- makeLockerPath mlp
+    -- Resolve the target path first, creating the file if it does not exist yet,
+    -- so the wizard can bootstrap a brand-new locker file at any location.
+    lp <- resolveLockerPath mlp
+    liftIO $ do
+        ex <- doesFileExist lp
+        unless ex $ appendFile lp "; created by hlocker\n"
 
     liftIO $ putStr "close/open/quit? (default is 'close')\n> " *> hFlush stdout
     clop <- liftIO getLine
-    let act = selectAction clop
-    if act == "quit" then
-        liftIO exitSuccess
-    else do
-        liftIO $ putStr "when? (default is today)\n> " *> hFlush stdout
-        dte <- liftIO getLine
-        liftIO (runParseDate dte) >>= \case
-            Left err -> logError err
-            Right d -> (liftIO $ do
-                putStr "Account name?\n> " *> hFlush stdout
-                s <- getLine
-                appendFile lp $ unwords [act, show d, s <> "\n"]) >> logInfo (Text.pack $ "updated file '" <> lp <> "'")
-        when keepGoing $ wizard keepGoing mlp
+    case selectAction clop of
+        Nothing -> logError "Unrecognised action; expected 'close', 'open', or 'quit'"
+        Just Quit -> liftIO exitSuccess
+        Just (Act v) -> do
+            liftIO $ putStr "when? (default is today)\n> " *> hFlush stdout
+            dte <- liftIO getLine
+            liftIO (runParseDate dte) >>= \case
+                Left err -> logError err
+                Right d -> do
+                    liftIO $ putStr "Account name?\n> " *> hFlush stdout
+                    acc <- trim <$> liftIO getLine
+                    if null acc
+                        then logError "Empty account name; nothing written"
+                        else do
+                            liftIO $ appendFile lp $ unwords [verbKeyword v, show d, acc] <> "\n"
+                            logInfo (Text.pack $ "updated file '" <> lp <> "'")
+            when keepGoing $ wizard keepGoing mlp
 
     `catchError` handler
-
-selectAction :: String -> String
-selectAction "" = "close"
-selectAction "quit" = "quit"
-selectAction s
-    | (toLower <$> s) == "close" = "close"
-    | otherwise = "open "

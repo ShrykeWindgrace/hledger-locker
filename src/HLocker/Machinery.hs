@@ -1,4 +1,4 @@
-module HLocker.Machinery where
+module HLocker.Machinery (selectFirst, failLEV) where
 import           Control.Selective
 import           Data.List.NonEmpty
 
