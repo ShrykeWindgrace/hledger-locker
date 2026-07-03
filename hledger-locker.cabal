@@ -1,6 +1,6 @@
 cabal-version: 3.12
 
--- This file has been generated from package.yaml by hpack version 0.38.2.
+-- This file has been generated from package.yaml by hpack version 0.39.6.
 --
 -- see: https://github.com/sol/hpack
 
@@ -11,7 +11,7 @@ homepage:       https://github.com/ShrykeWindgrace/hledger-locker#readme
 bug-reports:    https://github.com/ShrykeWindgrace/hledger-locker/issues
 author:         ShrykeWindgrace
 maintainer:     shryke.windgrace@gmail.com
-copyright:      2024-2025 ShrykeWindgrace
+copyright:      2024-2026 ShrykeWindgrace
 license:        GPL-3.0-only
 license-file:   LICENSE
 build-type:     Simple
