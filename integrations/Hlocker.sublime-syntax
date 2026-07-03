@@ -10,17 +10,15 @@ scope: source.hlocker
 variables:
     date: |-
         (?x:
-            \d{4}[/-]\d{2}[/-]\d{2} |
-            \d{2}[/-]\d{2}[/-]\d{2} |
-            \d{2}[/-]\d{2}
+            \d{4}[./-]\d{1,2}[./-]\d{1,2}
         )
 
 contexts:
     main:
-        - match: ^(close|open)\s+({{date}})\s+([^;]*)
+        - match: ^((?i:close|open))\s+({{date}})\s+([^;]*)
           captures:
             1: keyword.control
             2: string.other.date
             3: variable.other.constant
-        - match: ([;#].*)$
+        - match: ^([;#].*)$
           scope: comment.line
