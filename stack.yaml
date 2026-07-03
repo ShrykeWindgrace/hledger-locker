@@ -1,5 +1,5 @@
 ---
-resolver: lts-23.25  # 9.8.4
+resolver: lts-24.48  # 9.10.3
 
 nix:
   enable: true
@@ -8,3 +8,6 @@ nix:
 
 packages:
   - .
+
+extra-deps:
+  - hledger-lib-1.52 # current snapshot is 1.43.2

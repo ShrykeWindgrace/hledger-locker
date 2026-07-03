@@ -3,10 +3,17 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/topics/lock_files
 
-packages: []
+packages:
+- completed:
+    hackage: hledger-lib-1.52@sha256:8d3d164b4c4c0a3e76ff3061b7f61908d8e2400203c9514893155e096c6da9e9,8183
+    pantry-tree:
+      sha256: f51c61ce814257e24a4884d1e66bcdded07f9c9aed16839f78c963170ca7d6fd
+      size: 4741
+  original:
+    hackage: hledger-lib-1.52
 snapshots:
 - completed:
-    sha256: a3501d1b61a539371d85305fe73e1134fc08e7c97498a42952455f011fd97ecf
-    size: 684278
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/23/25.yaml
-  original: lts-23.25
+    sha256: 3286bb954fe0e7e0291ca61fac01a689b7165da9d7e8ba3c3a045be989c860fd
+    size: 732677
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/24/48.yaml
+  original: lts-24.48
