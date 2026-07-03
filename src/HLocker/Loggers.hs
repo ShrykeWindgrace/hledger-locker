@@ -1,6 +1,5 @@
 {-# LANGUAGE ConstraintKinds  #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE LambdaCase       #-}
 module HLocker.Loggers (Logger, Loggable, logDebug, logError, logNone, logInfo, makeLoggers, runLoggers) where
 import           Colog.Core                 (LogAction (LogAction), cfilter)
 import           Control.Monad.IO.Class     (MonadIO (..))
@@ -20,15 +19,17 @@ isDebug :: Msg -> Bool
 isDebug (Msg Debug _) = True
 isDebug _             = False
 
-fmt :: Msg -> Text
-fmt (Msg s t) =  showSeverity s <> t
+fmt :: Bool -> Msg -> Text
+fmt useColor (Msg s t) = showSeverity useColor s <> t
 
-showSeverity :: Sev -> Text
-showSeverity = \case
-    None  -> mempty
-    Debug -> green  <> "[Debug] " <> reset
-    Info  -> blue <>  "[Info ] " <> reset
-    Error -> red  <>  "[Error] " <> reset
+showSeverity :: Bool -> Sev -> Text
+showSeverity _ None          = mempty
+showSeverity False Debug     = "[Debug] "
+showSeverity False Info      = "[Info ] "
+showSeverity False Error     = "[Error] "
+showSeverity True  Debug     = green <> "[Debug] " <> reset
+showSeverity True  Info      = blue  <> "[Info ] " <> reset
+showSeverity True  Error     = red   <> "[Error] " <> reset
 
 red :: Text
 red = pack $ setSGRCode [SetColor Foreground Vivid Red]
@@ -63,6 +64,6 @@ runLoggers m = do
 dropDebug :: Applicative m => Logger m -> Logger m
 dropDebug = cfilter (not . isDebug)
 
-makeLoggers :: MonadIO m => Bool -> Logger m
-makeLoggers useDebug = filt useDebug $ fmt >$< LogAction (liftIO . TIO.putStrLn) where
+makeLoggers :: MonadIO m => Bool -> Bool -> Logger m
+makeLoggers useDebug useColor = filt useDebug $ fmt useColor >$< LogAction (liftIO . TIO.putStrLn) where
     filt b = if b then id else dropDebug

@@ -32,6 +32,7 @@ import           Options.Applicative        (Parser, ParserInfo, command,
                                              showDefault, strOption, switch,
                                              (<|>))
 import           System.Directory           (doesFileExist)
+import           System.Environment         (lookupEnv)
 import           System.Exit                (ExitCode (ExitFailure), exitWith, exitSuccess)
 import System.IO
 
@@ -39,10 +40,17 @@ import System.IO
 main :: IO ()
 main = do
     CliOptions {..} <- execParser cliOptions
+    useColor <- shouldUseColor $ noColor commonOptions
+    let logs = makeLoggers (verbose commonOptions) useColor
     case com of
         Check {..} ->
-            runApp (makeLoggers $ verbose commonOptions) $ global commonOptions pathToJournal $ pathToLocker commonOptions
-        Wizard kg -> runApp (makeLoggers $ verbose commonOptions) $ wizard kg $ pathToLocker commonOptions
+            runApp logs $ global commonOptions pathToJournal $ pathToLocker commonOptions
+        Wizard kg -> runApp logs $ wizard kg $ pathToLocker commonOptions
+
+-- a NO_COLOR value must be non-empty to take effect, see https://no-color.org/
+shouldUseColor :: Bool -> IO Bool
+shouldUseColor True  = pure False
+shouldUseColor False = maybe True null <$> lookupEnv "NO_COLOR"
 
 
 data CliOptions = CliOptions {
@@ -54,7 +62,8 @@ data CommonOptions = CommonOptions {
         pathToLocker :: Maybe FilePath,
         verbose      :: Bool,
         autoTxns     :: Bool,
-        forecastTxns :: Bool
+        forecastTxns :: Bool,
+        noColor      :: Bool
     } deriving stock Show
 
 commonOptionsParser :: Parser CommonOptions
@@ -62,7 +71,8 @@ commonOptionsParser = CommonOptions <$>
     optional (strOption (short 'l' <> long "locker-file" <> help "path to LOCKER_FILE" <> metavar "LOCKER_FILE")) <*>
     switch (long "debug" <> hidden) <*>
     switch (long "auto" <> help "enable automatic transactions" <> showDefault) <*>
-    switch (long "forecast" <> help "enable forecast transactions for this year" <> showDefault)
+    switch (long "forecast" <> help "enable forecast transactions for this year" <> showDefault) <*>
+    switch (long "no-color" <> help "disable ANSI colors in output (see also NO_COLOR)" <> showDefault)
 
 data CommandChoice = Wizard Bool | Check {pathToJournal :: Maybe FilePath}
 
